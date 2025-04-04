@@ -36,7 +36,7 @@
           sans-serif;
         line-height: 1.6;
         margin: 0; /* Remove default margin */
-        padding: 30px; /* Add padding around the body */
+        padding: 20px;
         background-color: var(--medium-bg);
         color: var(--text-color);
         -webkit-font-smoothing: antialiased;
@@ -79,7 +79,7 @@
         max-width: 1200px;
         margin: 0 auto; /* Center container */
         background: var(--container-bg);
-        padding: 30px; /* More padding */
+        padding: 25px;
         box-shadow: var(--box-shadow-lg);
         border-radius: var(--border-radius);
       }
@@ -266,55 +266,13 @@
         background-color: var(--light-bg);
       }
 
-      .import-export-area {
-        margin: 15px 0 25px 0;
-        padding: 15px;
-        background: var(--light-bg);
-        border-radius: var(--border-radius);
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        align-items: center;
-      }
-
-      .import-area {
-        margin-top: 15px;
-        padding: 15px;
-        background-color: var(--medium-bg);
-        border: 1px dashed var(--border-color);
-        border-radius: var(--border-radius);
-      }
-
-      .import-area textarea {
-        width: 100%;
-        min-height: 150px;
-        margin: 10px 0;
-        box-sizing: border-box;
-      }
-
-      .chapter-filter {
-        margin: 15px 0 25px 0;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .chapter-filter label {
-        font-weight: 500;
-        color: var(--text-color-light);
-      }
-      .chapter-filter select {
-        padding: 8px 12px;
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        background-color: white;
-        min-width: 200px;
-      }
-
       /* --- Chapter --- */
       .chapter {
-        margin-bottom: 40px; /* More space between chapters */
-        padding: 25px;
+        margin-bottom: 40px; /* Space between chapters */
+        padding: 20px 15px;
         border: 1px solid var(--border-color);
+        border-left: none;
+        border-right: none;
         border-radius: var(--border-radius);
         background-color: var(
           --container-bg
@@ -368,7 +326,7 @@
       .scene-beat {
         /* Remove old borders */
         border: none;
-        padding: 20px;
+        padding: 15px 10px;
         margin: 20px 0; /* Space between beats */
         background-color: var(
           --light-bg
@@ -387,9 +345,11 @@
 
       /* Instruction Text Area (Display) */
       .beat-text-area {
-        padding: 12px;
+        padding: 10px;
         background-color: #e0e7ff; /* Slightly different light blue for instructions */
         border: 1px solid #c7d2fe;
+        border-left: none;
+        border-right: none;
         border-radius: var(--border-radius);
         min-height: 60px;
         white-space: pre-wrap;
@@ -422,9 +382,11 @@
 
       /* Generated Text Display */
       .generated-text-area-display {
-        padding: 15px;
+        padding: 12px;
         background-color: #ffffff; /* White background like main container */
         border: 1px solid var(--border-color);
+        border-left: none;
+        border-right: none;
         border-radius: var(--border-radius);
         min-height: 80px;
         white-space: pre-wrap;
@@ -523,6 +485,8 @@
       .summary-text-area {
         min-height: 120px; /* Taller summary area */
         background-color: var(--container-bg);
+        padding-left: 8px;
+        padding-right: 8px;
       }
 
       /* --- Feedback --- */
@@ -556,7 +520,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 20px; /* Padding for smaller screens */
+        padding: 10px; /* Reduced padding for smaller screens */
         box-sizing: border-box;
         opacity: 0; /* Start hidden for animation */
         animation: fadeIn 0.2s ease-out forwards;
@@ -569,9 +533,9 @@
 
       .modal-dialog {
         background-color: var(--container-bg);
-        max-width: 90%;
+        max-width: 95%; /* Allow more width on small screens */
         width: 800px;
-        max-height: 85vh; /* Allow slightly more height */
+        max-height: 90vh; /* Allow slightly more height */
         border-radius: var(--border-radius);
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
           0 4px 6px -4px rgba(0, 0, 0, 0.1);
@@ -619,7 +583,7 @@
       }
 
       .modal-body {
-        padding: 20px;
+        padding: 15px; /* Slightly reduced padding */
         overflow-y: auto;
         flex-grow: 1;
       }
@@ -645,8 +609,10 @@
         min-height: 350px; /* Taller text area */
         font-family: "Menlo", "Monaco", "Consolas", monospace; /* Monospace for prompts */
         font-size: 0.9rem;
-        padding: 15px;
+        padding: 15px 10px;
         border: 1px solid var(--border-color);
+        border-left: none;
+        border-right: none;
         border-radius: var(--border-radius);
         margin-bottom: 10px;
         resize: vertical;
@@ -686,9 +652,11 @@
         white-space: pre-wrap;
         font-family: "Georgia", "Times New Roman", Times, serif; /* Serif for novel text */
         line-height: 1.7;
-        padding: 20px;
+        padding: 15px 10px;
         background-color: #fff;
         border: 1px solid var(--border-color);
+        border-left: none;
+        border-right: none;
         border-radius: var(--border-radius);
         font-size: 1rem;
         color: #333; /* Slightly lighter black for reading */
@@ -705,7 +673,7 @@
         display: flex;
         align-items: center;
         flex-wrap: wrap; /* Allow wrapping on small screens */
-        gap: 12px; /* Adjust spacing between elements */
+        gap: 10px; /* Adjust spacing between elements */
         margin-bottom: 20px; /* Space below the header */
         padding: 10px; /* Optional padding around the header */
         background-color: var(
@@ -724,12 +692,12 @@
       .novel-editor-header .novel-title-edit {
         flex-grow: 1; /* Allow title to take up available space */
         margin: 0; /* Remove default margin */
-        min-width: 200px; /* Ensure minimum width for title */
+        min-width: 150px; /* Reduced min-width */
       }
       .novel-editor-header .novel-title-edit input[type="text"] {
-        font-size: 1.3em; /* Slightly smaller in header */
+        font-size: 1.2em; /* Slightly smaller in header */
         font-weight: 600;
-        padding: 8px 12px; /* Adjust padding */
+        padding: 8px 10px; /* Adjust padding */
         margin-bottom: 0; /* Remove bottom margin */
         border: 1px solid var(--border-color); /* Add subtle border */
         background-color: var(--container-bg); /* White background */
@@ -745,8 +713,9 @@
       .novel-editor-header .action-buttons {
         display: flex;
         align-items: center;
-        gap: 8px; /* Space between action buttons */
+        gap: 6px; /* Reduced gap */
         flex-shrink: 0; /* Prevent buttons shrinking too much */
+        flex-wrap: wrap; /* Allow buttons to wrap */
       }
       .novel-editor-header .action-buttons button {
         padding: 8px 10px; /* Make buttons slightly smaller */
@@ -765,11 +734,12 @@
         font-size: 0.9em;
         color: var(--text-color-light);
         margin: 0;
+        white-space: nowrap; /* Prevent label wrapping */
       }
       .novel-editor-header .chapter-filter-group select {
         padding: 7px 10px; /* Adjust padding */
         font-size: 0.9em;
-        min-width: 150px; /* Adjust as needed */
+        min-width: 130px; /* Reduced min-width */
       }
 
       /* Push Delete Button to the Right */
@@ -791,53 +761,179 @@
         border: none; /* Reset border if needed */
       }
 
-      /* Responsive Button Text (Optional but recommended) */
+      /* Responsive Button Text */
       .button-text-desktop {
         display: inline;
       }
       .button-text-mobile {
         display: none;
       }
+      .button-icon {
+        vertical-align: middle;
+        margin-right: 4px; /* Default margin */
+      }
+
+      /* === MEDIA QUERIES for Mobile Responsiveness === */
 
       @media (max-width: 900px) {
-        /* Adjust breakpoint as needed */
         .button-text-desktop {
           display: none;
         }
         .button-text-mobile {
           display: inline;
         }
+        .button-icon {
+          margin-right: 0; /* Remove margin when text is hidden */
+        }
         .novel-editor-header .novel-title-edit input[type="text"] {
-          font-size: 1.2em; /* Slightly smaller title on mobile */
+          font-size: 1.2em; /* Slightly smaller title */
         }
         .novel-editor-header .action-buttons button,
         .novel-editor-header .back-button,
         .novel-editor-header .delete-novel-btn {
           padding: 8px; /* Icon only padding */
         }
-        .novel-editor-header .action-buttons button svg,
-        .novel-editor-header .delete-novel-btn svg {
-          margin-right: 0; /* No margin when text is hidden */
-        }
       }
-      @media (max-width: 680px) {
-        /* Example: Further reduction */
+
+      /* --- Specific Mobile Padding/Border Reductions --- */
+      @media (max-width: 768px) {
+        body {
+          padding: 10px; /* Further reduce body padding */
+        }
+        .container {
+          padding: 15px; /* Reduce container padding */
+        }
+        .chapter {
+          /* Reduce padding, remove L/R borders */
+          padding: 15px 5px;
+          border-left: none;
+          border-right: none;
+          /* Keep top/bottom border */
+          border-top: 1px solid var(--border-color);
+          border-bottom: 1px solid var(--border-color);
+          /* Ensure border-radius only applies vertically if L/R removed */
+          border-top-left-radius: var(--border-radius);
+          border-top-right-radius: var(--border-radius);
+          border-bottom-left-radius: var(--border-radius);
+          border-bottom-right-radius: var(--border-radius);
+        }
+        .scene-beat {
+          /* Reduce padding (border already none) */
+          padding: 10px 5px;
+          margin-left: 0; /* Remove margin if chapter padding is less */
+          margin-right: 0; /* Remove margin if chapter padding is less */
+        }
+        .beat-text-area,
+        .generated-text-area-display,
+        .summary-text-area,
+        .prompt-textarea,
+        .novel-text-display {
+          /* Reduce internal horizontal padding */
+          padding-left: 8px;
+          padding-right: 8px;
+          /* Optional: Remove L/R borders */
+          /* border-left: none; */
+          /* border-right: none; */
+        }
+
+        /* Further adjustments to header for smaller screens */
         .novel-editor-header {
-          gap: 8px; /* Reduce gap more */
+          gap: 8px;
         }
         .novel-editor-header .novel-title-edit {
-          min-width: 150px; /* Allow title to be smaller */
+          min-width: 120px; /* Allow title to shrink more */
         }
         .novel-editor-header .chapter-filter-group select {
-          min-width: 120px;
+          min-width: 100px; /* Allow filter to shrink more */
         }
         .novel-editor-header .back-button span {
           display: none; /* Hide "Back" text */
         }
         .novel-editor-header .back-button {
-          padding: 8px;
+          padding: 8px; /* Icon only padding */
+        }
+        /* Make novel list items simpler */
+        #novelList li {
+          padding: 12px 10px;
+          flex-direction: column; /* Stack title and buttons */
+          align-items: flex-start;
+        }
+        .novel-item-title {
+          margin-right: 0;
+          margin-bottom: 8px; /* Space between title and buttons */
+        }
+        #novelList li div {
+          width: 100%;
+          text-align: right; /* Align buttons right */
+        }
+        #novelList li div button {
+          margin: 0 0 0 5px; /* Adjust button spacing */
+        }
+
+        /* Adjust create/import area */
+        .create-import-area {
+          flex-direction: column; /* Stack input and buttons */
+          align-items: stretch; /* Make items full width */
+          padding: 10px;
+        }
+        .create-import-area input[type="text"] {
+          margin-bottom: 8px; /* Space below input */
+        }
+        .create-import-area button {
+          margin: 4px 0; /* Adjust button margins */
         }
       }
+
+      /* Even smaller screen adjustments */
+      @media (max-width: 480px) {
+        body {
+          padding: 5px;
+        }
+        .container {
+          padding: 10px;
+          border-radius: 0; /* Remove container radius for edge-to-edge feel */
+        }
+        .chapter {
+          padding: 10px 0px; /* Minimal horizontal padding */
+          border-radius: 0;
+          margin-left: -5px; /* Adjust to align with container if needed */
+          margin-right: -5px; /* Adjust to align with container if needed */
+        }
+        .scene-beat {
+          padding: 8px 0;
+          border-radius: 0;
+        }
+        h1 {
+          font-size: 1.6em;
+        }
+        h2 {
+          font-size: 1.3em;
+        }
+        h3 {
+          font-size: 1.15em;
+        }
+
+        /* Ensure buttons don't get too tiny */
+        button {
+          padding: 8px 12px;
+          font-size: 0.85rem;
+        }
+        button.move-btn {
+          padding: 4px 8px;
+          min-width: 30px;
+          font-size: 0.9rem;
+        }
+        .novel-editor-header .action-buttons button,
+        .novel-editor-header .back-button,
+        .novel-editor-header .delete-novel-btn {
+          padding: 6px; /* Further reduce icon padding */
+        }
+        .novel-editor-header .novel-title-edit input[type="text"] {
+          font-size: 1.1em;
+        }
+      }
+
+      /* --- END MEDIA QUERIES --- */
     </style>
   </head>
   <body>
@@ -1584,11 +1680,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                 textAlign: "center",
               }}
             >
-              <a
-                href="./manual.html"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="./manual.html" target="_blank" rel="noopener noreferrer">
                 Need help? Read the User Manual
               </a>
             </div>
