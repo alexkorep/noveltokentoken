@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NovelTokenToken - User Manual</title>
+    <style>
+      /* Using a simplified version of the app's CSS for readability */
+      :root {
+        --primary-color: #4f46e5;
+        --danger-color: #dc2626;
+        --warning-color: #f59e0b;
+        --secondary-color: #6b7280;
+        --light-bg: #f9fafb;
+        --medium-bg: #f3f4f6;
+        --container-bg: #ffffff;
+        --text-color: #1f2937;
+        --text-color-light: #6b7280;
+        --border-color: #e5e7eb;
+        --border-radius: 6px;
+        --box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1),
+          0 1px 2px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+          sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 30px;
+        background-color: var(--medium-bg);
+        color: var(--text-color);
+      }
+      .container {
+        max-width: 900px; /* Manual width */
+        margin: 20px auto;
+        background: var(--container-bg);
+        padding: 25px 40px;
+        box-shadow: var(--box-shadow);
+        border-radius: var(--border-radius);
+      }
+      h1,
+      h2,
+      h3 {
+        margin-top: 1.5em;
+        margin-bottom: 0.8em;
+        color: var(--primary-color);
+      }
+      h1 {
+        font-size: 2.2em;
+        text-align: center;
+        color: var(--text-color);
+        margin-top: 0;
+      }
+      h2 {
+        font-size: 1.8em;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 5px;
+      }
+      h3 {
+        font-size: 1.4em;
+        color: var(--text-color);
+      }
+      p {
+        margin-bottom: 1em;
+      }
+      ul {
+        margin-bottom: 1em;
+        padding-left: 20px;
+      }
+      li {
+        margin-bottom: 0.5em;
+      }
+      strong {
+        color: var(--primary-color);
+      }
+      code {
+        background-color: var(--medium-bg);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "Menlo", "Monaco", "Consolas", monospace;
+        font-size: 0.9em;
+        color: #374151; /* Dark Gray */
+      }
+      .button-style {
+        /* Simulate button look */
+        display: inline-block;
+        padding: 3px 8px;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: var(--border-radius);
+        font-size: 0.9em;
+        box-shadow: var(--box-shadow);
+        margin: 0 2px;
+      }
+      .delete-button-style {
+        background-color: var(--danger-color);
+      }
+      .secondary-button-style {
+        background-color: var(--secondary-color);
+      }
+      .warning-button-style {
+        background-color: var(--warning-color);
+        color: black;
+      }
+      .note {
+        background-color: var(--light-bg);
+        border-left: 4px solid var(--warning-color);
+        padding: 10px 15px;
+        margin: 15px 0;
+        border-radius: 0 var(--border-radius) var(--border-radius) 0;
+      }
+      .tip {
+        background-color: #e0e7ff; /* Light Indigo */
+        border-left: 4px solid var(--primary-color);
+        padding: 10px 15px;
+        margin: 15px 0;
+        border-radius: 0 var(--border-radius) var(--border-radius) 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>NovelTokenToken User Manual</h1>
+
+      <h2>Introduction</h2>
+      <p>
+        Welcome to NovelTokenToken! This application is designed to help you
+        structure and write your novel chapter by chapter, using the power of AI
+        language models like ChatGPT. Instead of facing a blank page, you break
+        your story down into manageable 'Scene Beats', generate tailored prompts
+        for each beat, and integrate the AI-generated content seamlessly.
+      </p>
+      <p>
+        The core idea is to provide detailed instructions (Scene Beats) to an
+        AI, get relevant text back, and organize it within your novel's
+        structure.
+      </p>
+
+      <div class="note">
+        <p>
+          <strong>Important Note on Data Storage:</strong> NovelTokenToken saves
+          all your work directly in your web browser's
+          <strong>Local Storage</strong>. This means:
+        </p>
+        <ul>
+          <li>
+            Your data is stored
+            <strong>only on the computer and browser you are using</strong>.
+            It's not stored online or synced automatically.
+          </li>
+          <li>
+            Clearing your browser's cache or site data
+            <strong>will permanently delete all your novels</strong> stored in
+            this app.
+          </li>
+          <li>
+            <strong>Regularly use the Export feature</strong> (explained below)
+            to back up your work! Save the exported file to a safe place like
+            Google Drive, Dropbox, or an external hard drive.
+          </li>
+        </ul>
+      </div>
+
+      <h2>Getting Started</h2>
+      <p>
+        Simply open the <code>NovelTokenToken.html</code> file (or whatever you
+        named it) in your preferred web browser (like Chrome, Firefox, Edge,
+        Safari). You'll start on the Novel List view.
+      </p>
+
+      <h2>Interface Overview</h2>
+      <p>The app has two main views:</p>
+      <ol>
+        <li>
+          <strong>Novel List View:</strong> Your starting point. Here you can
+          see all your saved novels, create new ones, or import existing ones.
+        </li>
+        <li>
+          <strong>Novel Editor View:</strong> The main workspace for writing.
+          When you open a novel, you enter this view to manage chapters, scene
+          beats, prompts, and generated text.
+        </li>
+      </ol>
+
+      <h2>Managing Novels (List View)</h2>
+      <ul>
+        <li>
+          <strong>Creating a Novel:</strong> Type a title in the "New Novel
+          Title" field and click
+          <code class="button-style">Create New Novel</code>. You'll be taken
+          directly to the Editor View for your new novel.
+        </li>
+        <li>
+          <strong>Opening a Novel:</strong> Click on the novel's title in the
+          list, or click the corresponding
+          <code class="button-style">Open</code> button.
+        </li>
+        <li>
+          <strong>Deleting a Novel:</strong> Click the
+          <code class="delete-button-style">Delete</code> button next to the
+          novel you wish to remove. You will be asked to confirm this action, as
+          it cannot be undone.
+        </li>
+        <li>
+          <strong>Importing a Novel:</strong>
+          <ol>
+            <li>
+              Click the <code class="button-style">Import Novel</code> button.
+            </li>
+            <li>
+              A text area will appear. Paste the
+              <strong>entire content</strong> of a previously exported
+              NovelTokenToken Markdown file into this area.
+            </li>
+            <li>
+              Click the <code class="button-style">Import</code> button below
+              the text area. The imported novel will appear in your list.
+            </li>
+            <li>
+              Click <code class="secondary-button-style">Cancel Import</code> or
+              <code class="secondary-button-style">Cancel</code> to hide the
+              import area.
+            </li>
+          </ol>
+        </li>
+      </ul>
+
+      <h2>Editing a Novel (Editor View)</h2>
+      <p>
+        This is where you'll spend most of your writing time. The editor view
+        displays the content of the currently opened novel.
+      </p>
+
+      <h3>Editor Header</h3>
+      <p>At the top of the editor, you'll find several controls:</p>
+      <ul>
+        <li>
+          <code class="button-style">← Back to List</code>: Returns you to the
+          Novel List view.
+        </li>
+        <li>
+          <strong>Novel Title Field:</strong> Click and type here to rename your
+          novel at any time.
+        </li>
+        <li>
+          <code class="button-style">Export Novel</code>: Opens a modal window
+          displaying your entire novel (including instructions, summaries, and
+          templates) in Markdown format. Use this for backups!
+        </li>
+        <li>
+          <code class="button-style">Edit Template</code>: Opens a modal to
+          customize the prompt template used for generating scene beat prompts
+          (see below).
+        </li>
+        <li>
+          <code class="button-style">View Text</code>: Opens a modal showing
+          only the AI-generated content for the entire novel, formatted for easy
+          reading or copying.
+        </li>
+        <li>
+          <strong>Show: Dropdown:</strong> Allows you to filter the view to show
+          only a specific chapter, or all chapters.
+        </li>
+        <li>
+          <code class="delete-button-style">Delete Novel</code>: Permanently
+          deletes the current novel (with confirmation).
+        </li>
+      </ul>
+
+      <h3>Working with Chapters</h3>
+      <ul>
+        <li>
+          <strong>Adding a Chapter:</strong> Click the
+          <code class="button-style">+ Add New Chapter</code> button at the
+          bottom of the editor. A new chapter (e.g., "Chapter 1", "Chapter 2")
+          will be added to the end.
+        </li>
+        <li>
+          <strong>Renaming a Chapter:</strong> Click directly on the chapter
+          title (e.g., "Chapter 1") within its header and type the new name.
+        </li>
+        <li>
+          <strong>Deleting a Chapter:</strong> Click the
+          <code class="delete-button-style">Delete Chapter</code> button within
+          the chapter's header. This requires confirmation and deletes the
+          chapter and all its scene beats.
+        </li>
+        <li>
+          <strong>Reordering Chapters:</strong> Use the
+          <code class="warning-button-style">↑</code> and
+          <code class="warning-button-style">↓</code> arrow buttons in the
+          chapter header to move it up or down in the novel's sequence.
+        </li>
+      </ul>
+
+      <h3>Working with Scene Beats</h3>
+      <p>
+        Scene beats are the core of the writing process in NovelTokenToken. Each
+        beat represents a specific instruction or goal for a small section of
+        your story.
+      </p>
+      <ul>
+        <li>
+          <strong>Structure of a Beat:</strong> Each beat has:
+          <ul>
+            <li>
+              <strong>Scene Beat Instruction:</strong> The instructions you
+              write for the AI.
+            </li>
+            <li>
+              <strong>Controls:</strong> Buttons to move, edit, generate prompt,
+              and delete the beat.
+            </li>
+            <li>
+              <strong>AI Generated Content:</strong> The text generated by the
+              AI based on your prompt.
+            </li>
+            <li>
+              <strong>Edit Content Button:</strong> To paste or edit the
+              AI-generated text.
+            </li>
+          </ul>
+        </li>
+        <li>
+          <strong>Adding a Scene Beat:</strong> Within a chapter, find the "Add
+          new scene beat instruction..." text area at the bottom. Type your
+          detailed instructions for what should happen next in the story, then
+          click the <code class="button-style">+ Add Beat</code> button.
+        </li>
+        <li>
+          <strong>Editing a Beat Instruction:</strong> Click the
+          <code class="button-style">Edit Instruction</code> button for the
+          specific beat. A modal window will appear where you can modify the
+          instruction text. Click
+          <code class="button-style">Save Changes</code> in the modal.
+        </li>
+        <li>
+          <strong>Deleting a Scene Beat:</strong> Click the
+          <code class="delete-button-style">Delete Beat</code> button for that
+          beat (requires confirmation).
+        </li>
+        <li>
+          <strong>Reordering Scene Beats:</strong> Use the
+          <code class="warning-button-style">↑</code> and
+          <code class="warning-button-style">↓</code> arrow buttons within the
+          beat's controls to change its position within the chapter.
+        </li>
+      </ul>
+
+      <h3>Generating Prompts & Adding AI Content</h3>
+      <p>This is the central workflow:</p>
+      <ol>
+        <li>
+          <strong>Write Beat Instruction:</strong> Add a new scene beat and
+          write clear, specific instructions for the AI (e.g., "Describe Sarah
+          entering the dusty attic, feeling apprehensive. She finds an old
+          wooden box under a white sheet.").
+        </li>
+        <li>
+          <strong>Generate Prompt:</strong> Click the
+          <code class="button-style">Show Prompt</code> button for that beat.
+          <ul>
+            <li>
+              A modal window will appear containing the fully constructed
+              prompt. This prompt includes:
+              <ul>
+                <li>
+                  Context from previous chapters (using summaries if available,
+                  otherwise full text up to a limit).
+                </li>
+                <li>Context from previous beats in the current chapter.</li>
+                <li>Your specific Scene Beat Instruction for this beat.</li>
+                <li>Instructions from your Prompt Template (see below).</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <strong>Copy Prompt:</strong> In the modal, click
+          <code class="button-style">Copy to Clipboard</code>.
+        </li>
+        <li>
+          <strong>Use External AI:</strong> Go to your preferred AI chat tool
+          (like ChatGPT, Claude, etc.) and paste the copied prompt.
+        </li>
+        <li>
+          <strong>Get AI Response:</strong> Let the AI generate the text based
+          on your prompt.
+        </li>
+        <li>
+          <strong>Copy AI Response:</strong> Copy the relevant text generated by
+          the AI.
+        </li>
+        <li>
+          <strong>Add to NovelTokenToken:</strong>
+          <ul>
+            <li>Go back to the NovelTokenToken editor.</li>
+            <li>Find the correct scene beat.</li>
+            <li>
+              Click the <code class="button-style">Edit Content</code> button
+              below the "AI Generated Content" area for that beat.
+            </li>
+            <li>
+              A modal window will appear. Paste the AI-generated text into the
+              text area.
+            </li>
+            <li>
+              Click <code class="button-style">Save Changes</code> in the modal.
+              The text will now appear in the "AI Generated Content" section of
+              your beat.
+            </li>
+          </ul>
+        </li>
+        <li>
+          <strong>Edit AI Content (Optional):</strong> You can click
+          <code class="button-style">Edit Content</code> again at any time to
+          make manual changes or corrections to the pasted AI text.
+        </li>
+      </ol>
+
+      <h3>Chapter Summaries</h3>
+      <p>
+        As your novel grows, providing the full text of previous chapters as
+        context for the AI can become inefficient. Chapter summaries help keep
+        prompts concise and relevant.
+      </p>
+      <ul>
+        <li>
+          <strong>Purpose:</strong> A summary provides the essential plot points
+          of a completed chapter, which the app uses as context instead of the
+          full chapter text when generating prompts for *later* chapters.
+        </li>
+        <li>
+          <strong>Accessing:</strong> At the bottom of each chapter, below the
+          scene beats, click on the "▼ Chapter Summary" header to expand the
+          section.
+        </li>
+        <li>
+          <strong>Generating a Summary Prompt:</strong>
+          <ol>
+            <li>
+              Ensure the chapter has AI-generated content in its scene beats.
+            </li>
+            <li>Expand the "Chapter Summary" section.</li>
+            <li>
+              Click the
+              <code class="button-style">Copy Summary Prompt</code> button. This
+              copies *all the generated text from that chapter* to your
+              clipboard, along with an instruction asking the AI to summarize
+              it.
+            </li>
+            <li>
+              Paste this prompt into your external AI tool and get a summary.
+            </li>
+            <li>Copy the summary generated by the AI.</li>
+          </ol>
+        </li>
+        <li>
+          <strong>Adding the Summary:</strong> Paste the AI-generated summary
+          into the large text area provided under the "Chapter Summary" header.
+          The app automatically saves it.
+        </li>
+      </ul>
+      <div class="tip">
+        <p>
+          <strong>Tip:</strong> It's good practice to generate and add a summary
+          once you've finished writing all the scene beats for a chapter.
+        </p>
+      </div>
+
+      <h3>Customizing the Prompt Template</h3>
+      <p>
+        You can control the overall instructions given to the AI in every
+        prompt.
+      </p>
+      <ul>
+        <li>
+          Click the <code class="button-style">Edit Template</code> button in
+          the novel editor header.
+        </li>
+        <li>
+          A modal appears showing the current template. The default template
+          includes instructions about writing style, avoiding conclusions, etc.
+        </li>
+        <li>You can edit this text freely.</li>
+        <li>
+          Make sure to keep the placeholders:
+          <ul>
+            <li>
+              <code>{storySoFar}</code>: Where the app inserts the context from
+              previous text/summaries.
+            </li>
+            <li>
+              <code>{instructions}</code>: Where the app inserts the text from
+              the current Scene Beat Instruction.
+            </li>
+          </ul>
+        </li>
+        <li>
+          Click <code class="button-style">Save Template</code> to apply your
+          changes to this specific novel.
+        </li>
+        <li>
+          Click <code class="secondary-button-style">Reset to Default</code> to
+          revert the text area content to the application's default template
+          (you still need to click Save Template to apply it).
+        </li>
+      </ul>
+
+      <h3>Exporting Your Novel (Backup!)</h3>
+      <ul>
+        <li>
+          In the Novel Editor View, click the
+          <code class="button-style">Export Novel</code> button in the header.
+        </li>
+        <li>
+          A modal appears with your novel formatted in Markdown. This includes
+          the title, template, chapter titles, summaries, beat instructions, and
+          generated content.
+        </li>
+        <li>Click <code class="button-style">Copy to Clipboard</code>.</li>
+        <li>
+          Paste this text into a plain text file (using Notepad, TextEdit, VS
+          Code, etc.) and save it with a `.md` extension (e.g.,
+          `MyNovelBackup_2023-10-27.md`).
+        </li>
+        <li><strong>Save this file securely!</strong> This is your backup.</li>
+      </ul>
+      <div class="note">
+        <p>
+          <strong>Recommendation:</strong> Export frequently, especially after
+          significant writing sessions. Save backups with dates in the filename
+          and store them in a cloud service (Google Drive, Dropbox, OneDrive) or
+          another safe location separate from your main computer.
+        </p>
+      </div>
+
+      <h3>Viewing Novel Text</h3>
+      <ul>
+        <li>
+          Click the <code class="button-style">View Text</code> button in the
+          novel editor header.
+        </li>
+        <li>
+          A modal appears displaying only the combined "AI Generated Content"
+          from all scene beats across all chapters, formatted like a standard
+          text document.
+        </li>
+        <li>
+          This is useful for reading through your story or copying the narrative
+          content without the instructions or summaries.
+        </li>
+        <li>
+          You can use the
+          <code class="button-style">Copy to Clipboard</code> button in this
+          modal as well.
+        </li>
+      </ul>
+
+      <h2>Troubleshooting Tips</h2>
+      <ul>
+        <li>
+          <strong>App is empty / Lost my work:</strong> Did you clear your
+          browser data? If so, the data is likely gone unless you have an
+          exported backup. Always export regularly! Are you using the same
+          browser on the same computer where you last worked?
+        </li>
+        <li>
+          <strong>Import not working:</strong> Ensure you are pasting the
+          *exact* and *complete* text from a file previously generated by the
+          "Export Novel" feature. The formatting needs to be correct.
+        </li>
+        <li>
+          <strong>Prompt generation error:</strong> Check if the novel, chapter,
+          or beat data somehow became corrupted (unlikely but possible). Ensure
+          scene beat instructions are not excessively long.
+        </li>
+      </ul>
+
+      <hr />
+      <p
+        style="
+          text-align: center;
+          font-size: 0.9em;
+          color: var(--text-color-light);
+        "
+      >
+        Happy Writing!
+      </p>
+    </div>
+  </body>
+</html>

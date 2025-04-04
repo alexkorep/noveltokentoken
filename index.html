@@ -1335,6 +1335,36 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                   <span className="button-text-mobile">View</span>
                   <span className="button-text-desktop">View Text</span>
                 </button>
+                <a
+                  href="./manual.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="User Manual"
+                >
+                  <button>
+                    {" "}
+                    {/* Or just style the <a> like a button */}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      width="16"
+                      height="16"
+                      style={{ verticalAlign: "middle" }}
+                    >
+                      {/* Question Mark Icon Path */}
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a.75.75 0 01.75.75v.008a.75.75 0 01-1.5 0V6.75A.75.75 0 0110 6zm-.25 3.25a.75.75 0 00-1.5 0v4.5c0 .414.336.75.75.75h.5a.75.75 0 00.75-.75v-4.5z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="button-text-mobile">Help</span>{" "}
+                    {/* Optional: Mobile Text */}
+                    <span className="button-text-desktop">Manual</span>{" "}
+                    {/* Optional: Desktop Text */}
+                  </button>
+                </a>
                 {/* Feedback can be here or moved elsewhere if needed */}
                 <div
                   className="feedback-container"
@@ -1547,6 +1577,21 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                 </button>
               </div>
             )}
+            <div
+              style={{
+                marginTop: "15px",
+                fontSize: "0.9em",
+                textAlign: "center",
+              }}
+            >
+              <a
+                href="./manual.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Need help? Read the User Manual
+              </a>
+            </div>
           </div>
         );
       }
