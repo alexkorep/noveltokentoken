@@ -89,10 +89,23 @@
         padding: 25px;
         box-shadow: var(--box-shadow-lg);
         border-radius: var(--border-radius);
+        overflow-x: hidden; /* Prevent horizontal overflow */
       }
 
       .view {
         margin-top: 25px;
+        overflow-x: hidden; /* Prevent horizontal scroll */
+        width: 100%; /* Ensure it doesn't exceed its parent */
+      }
+
+      /* Ensure text content wraps */
+      .novel-item-title, 
+      .chapter-title,
+      .beat-text-area, 
+      .generated-text-area-display,
+      .scene-beat p {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
       }
 
       hr {
