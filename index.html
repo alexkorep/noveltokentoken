@@ -941,6 +941,11 @@
         }
       }
 
+      .import-button, 
+      .import-area .secondary-btn {
+        margin: 10px;
+      }
+
       /* --- END MEDIA QUERIES --- */
     </style>
   </head>
@@ -1647,7 +1652,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                 onChange={(e) => setNewNovelTitle(e.target.value)}
               />
               <button onClick={handleCreate}>Create New Novel</button>
-              <button onClick={toggleImport}>
+              <button onClick={toggleImport} className="import-button">
                 {importVisible ? "Cancel Import" : "Import Novel"}
               </button>
             </div>
