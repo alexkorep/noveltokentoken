@@ -7,6 +7,12 @@
     <meta name="theme-color" content="#4f46e5" />
     <title>NovelTokenToken</title>
     <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box; /* Apply border-box universally */
+      }
+
       /* --- Base & Variables --- */
       :root {
         --primary-color: #4f46e5; /* Indigo */
@@ -72,6 +78,7 @@
       }
       p {
         margin-bottom: 1em;
+        /* Assuming default margin-top reset elsewhere or intended */
       }
 
       /* --- Layout --- */
@@ -97,7 +104,7 @@
       /* --- Buttons --- */
       button {
         padding: 9px 15px;
-        margin: 5px 4px;
+        margin: 0; /* Reset margin, use gap or specific margins instead */
         cursor: pointer;
         background-color: var(--primary-color);
         color: white;
@@ -108,6 +115,8 @@
         transition: background-color 0.2s ease-in-out,
           box-shadow 0.2s ease-in-out;
         box-shadow: var(--box-shadow);
+        vertical-align: middle; /* Align icons and text */
+        white-space: nowrap; /* Prevent text wrapping by default */
       }
 
       button:hover {
@@ -122,7 +131,14 @@
       }
       button:focus:not(:focus-visible) {
         /* Remove focus ring if not keyboard focused */
+        box-shadow: var(--box-shadow); /* Revert to base shadow */
+      }
+
+      button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
         box-shadow: none;
+        opacity: 0.7;
       }
 
       button.delete-btn {
@@ -133,6 +149,9 @@
       }
       button.delete-btn:focus {
         box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.4); /* Danger color focus ring */
+      }
+      button.delete-btn:focus:not(:focus-visible) {
+        box-shadow: var(--box-shadow);
       }
 
       button.move-btn {
@@ -148,12 +167,8 @@
       button.move-btn:focus {
         box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.4); /* Warning color focus ring */
       }
-
-      button:disabled {
-        background-color: #ccc;
-        cursor: not-allowed;
-        box-shadow: none;
-        opacity: 0.7;
+      button.move-btn:focus:not(:focus-visible) {
+        box-shadow: var(--box-shadow);
       }
 
       button.secondary-btn {
@@ -166,6 +181,9 @@
       button.secondary-btn:focus {
         box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.4); /* Secondary color focus ring */
       }
+      button.secondary-btn:focus:not(:focus-visible) {
+        box-shadow: var(--box-shadow);
+      }
 
       /* --- Input Fields & Textareas --- */
       input[type="text"],
@@ -175,7 +193,7 @@
         border-radius: var(--border-radius);
         font-size: 0.95rem;
         width: 100%;
-        box-sizing: border-box;
+        /* box-sizing is handled by universal selector */
         transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
       }
 
@@ -231,7 +249,7 @@
 
       #novelList li div button {
         /* Reduce margin for buttons in list */
-        margin: 0 0 0 8px;
+        margin-left: 8px;
       }
 
       /* Create/Import Novel Area */
@@ -270,9 +288,9 @@
       .chapter {
         margin-bottom: 40px; /* Space between chapters */
         padding: 20px 15px;
-        border: 1px solid var(--border-color);
-        border-left: none;
-        border-right: none;
+        /* border: 1px solid var(--border-color); border-left: none; border-right: none; */
+        border-block: 1px solid var(--border-color);
+        border-inline: none;
         border-radius: var(--border-radius);
         background-color: var(
           --container-bg
@@ -317,10 +335,7 @@
         flex-shrink: 0; /* Prevent controls from shrinking too much */
         gap: 8px; /* Space between control buttons */
       }
-      .chapter-controls button,
-      .beat-controls button {
-        margin: 0; /* Remove default button margin */
-      }
+      /* Removed redundant margin reset for .chapter-controls button, .beat-controls button */
 
       /* --- Scene Beat --- */
       .scene-beat {
@@ -347,14 +362,14 @@
       .beat-text-area {
         padding: 10px;
         background-color: #e0e7ff; /* Slightly different light blue for instructions */
-        border: 1px solid #c7d2fe;
-        border-left: none;
-        border-right: none;
+        /* border: 1px solid #c7d2fe; border-left: none; border-right: none; */
+        border-block: 1px solid #c7d2fe;
+        border-inline: none;
         border-radius: var(--border-radius);
         min-height: 60px;
         white-space: pre-wrap;
         width: 100%;
-        box-sizing: border-box;
+        /* box-sizing is universal */
         color: var(--text-color);
         line-height: 1.5;
         margin-bottom: 15px; /* Space before controls */
@@ -384,9 +399,8 @@
       .generated-text-area-display {
         padding: 12px;
         background-color: #ffffff; /* White background like main container */
-        border: 1px solid var(--border-color);
-        border-left: none;
-        border-right: none;
+        border-block: 1px solid var(--border-color);
+        border-inline: none;
         border-radius: var(--border-radius);
         min-height: 80px;
         white-space: pre-wrap;
@@ -415,7 +429,6 @@
 
       .add-beat-area textarea {
         flex-grow: 1;
-        margin-right: 10px;
         min-height: 50px; /* Slightly taller */
       }
       .add-beat-area button {
@@ -472,7 +485,7 @@
         color: var(--text-color-light);
       }
       .summary-header:not(.collapsed) .collapse-indicator {
-        transform: rotate(0deg);
+        transform: rotate(0deg); /* Keep explicit for transition */
       }
       .summary-header.collapsed .collapse-indicator {
         transform: rotate(-90deg);
@@ -485,8 +498,7 @@
       .summary-text-area {
         min-height: 120px; /* Taller summary area */
         background-color: var(--container-bg);
-        padding-left: 8px;
-        padding-right: 8px;
+        padding-inline: 8px; /* Use shorthand */
       }
 
       /* --- Feedback --- */
@@ -511,8 +523,7 @@
       /* --- Modal Dialog Styles --- */
       .modal-overlay {
         position: fixed;
-        top: 0;
-        left: 0;
+        inset: 0; /* Shorthand for top/left/right/bottom */
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
@@ -521,7 +532,6 @@
         justify-content: center;
         align-items: center;
         padding: 10px; /* Reduced padding for smaller screens */
-        box-sizing: border-box;
         opacity: 0; /* Start hidden for animation */
         animation: fadeIn 0.2s ease-out forwards;
       }
@@ -599,10 +609,7 @@
         flex-shrink: 0;
         gap: 10px; /* Space between footer buttons */
       }
-
-      .modal-footer button {
-        margin: 0; /* Remove default margin */
-      }
+      /* Removed redundant margin reset for .modal-footer button */
 
       .prompt-textarea {
         width: 100%;
@@ -610,13 +617,13 @@
         font-family: "Menlo", "Monaco", "Consolas", monospace; /* Monospace for prompts */
         font-size: 0.9rem;
         padding: 15px 10px;
-        border: 1px solid var(--border-color);
-        border-left: none;
-        border-right: none;
+        /* border: 1px solid var(--border-color); border-left: none; border-right: none; */
+        border-block: 1px solid var(--border-color);
+        border-inline: none;
         border-radius: var(--border-radius);
         margin-bottom: 10px;
         resize: vertical;
-        box-sizing: border-box;
+        /* box-sizing is universal */
         background-color: var(--light-bg); /* Light bg for readonly textareas */
       }
       .prompt-textarea:not([readOnly]) {
@@ -654,9 +661,9 @@
         line-height: 1.7;
         padding: 15px 10px;
         background-color: #fff;
-        border: 1px solid var(--border-color);
-        border-left: none;
-        border-right: none;
+        /* border: 1px solid var(--border-color); border-left: none; border-right: none; */
+        border-block: 1px solid var(--border-color);
+        border-inline: none;
         border-radius: var(--border-radius);
         font-size: 1rem;
         color: #333; /* Slightly lighter black for reading */
@@ -720,7 +727,7 @@
       .novel-editor-header .action-buttons button {
         padding: 8px 10px; /* Make buttons slightly smaller */
         font-size: 0.85rem;
-        white-space: nowrap; /* Prevent text wrapping inside button */
+        /* white-space: nowrap; Inherited from base button */
       }
 
       /* Group Chapter Filter */
@@ -740,6 +747,9 @@
         padding: 7px 10px; /* Adjust padding */
         font-size: 0.9em;
         min-width: 130px; /* Reduced min-width */
+        border: 1px solid var(--border-color); /* Style consistency */
+        border-radius: var(--border-radius); /* Style consistency */
+        background-color: var(--container-bg); /* Style consistency */
       }
 
       /* Push Delete Button to the Right */
@@ -753,12 +763,11 @@
       /* Remove original containers if they are now empty */
       .import-export-area,
       .chapter-filter {
-        /* If you moved *all* content out, you can potentially remove these selectors */
-        /* Otherwise, adjust their styles if they still contain other items */
-        margin: 0; /* Reset margin if needed */
-        padding: 0; /* Reset padding if needed */
-        background: none; /* Reset background if needed */
-        border: none; /* Reset border if needed */
+        /* If content moved, reset styles */
+        margin: 0;
+        padding: 0;
+        background: none;
+        border: none;
       }
 
       /* Responsive Button Text */
@@ -771,6 +780,9 @@
       .button-icon {
         vertical-align: middle;
         margin-right: 4px; /* Default margin */
+      }
+      .button-icon:only-child {
+        margin-right: 0; /* No margin if only icon */
       }
 
       /* === MEDIA QUERIES for Mobile Responsiveness === */
@@ -793,6 +805,12 @@
         .novel-editor-header .delete-novel-btn {
           padding: 8px; /* Icon only padding */
         }
+        /* Ensure icon only buttons don't have extra margin */
+        .novel-editor-header .action-buttons button .button-icon,
+        .novel-editor-header .back-button .button-icon,
+        .novel-editor-header .delete-novel-btn .button-icon {
+          margin-right: 0;
+        }
       }
 
       /* --- Specific Mobile Padding/Border Reductions --- */
@@ -804,14 +822,12 @@
           padding: 15px; /* Reduce container padding */
         }
         .chapter {
-          /* Reduce padding, remove L/R borders */
+          /* Reduce padding, ensure borders only top/bottom */
           padding: 15px 5px;
-          border-left: none;
-          border-right: none;
-          /* Keep top/bottom border */
-          border-top: 1px solid var(--border-color);
-          border-bottom: 1px solid var(--border-color);
-          /* Ensure border-radius only applies vertically if L/R removed */
+          border-block: 1px solid var(--border-color);
+          border-inline: none;
+          border-radius: var(--border-radius); /* Keep if desired */
+          /* Explicitly remove L/R radius if L/R borders removed */
           border-top-left-radius: var(--border-radius);
           border-top-right-radius: var(--border-radius);
           border-bottom-left-radius: var(--border-radius);
@@ -820,8 +836,7 @@
         .scene-beat {
           /* Reduce padding (border already none) */
           padding: 10px 5px;
-          margin-left: 0; /* Remove margin if chapter padding is less */
-          margin-right: 0; /* Remove margin if chapter padding is less */
+          margin-inline: 0; /* Remove margin if chapter padding is less */
         }
         .beat-text-area,
         .generated-text-area-display,
@@ -829,11 +844,7 @@
         .prompt-textarea,
         .novel-text-display {
           /* Reduce internal horizontal padding */
-          padding-left: 8px;
-          padding-right: 8px;
-          /* Optional: Remove L/R borders */
-          /* border-left: none; */
-          /* border-right: none; */
+          padding-inline: 8px;
         }
 
         /* Further adjustments to header for smaller screens */
@@ -852,22 +863,26 @@
         .novel-editor-header .back-button {
           padding: 8px; /* Icon only padding */
         }
+        .novel-editor-header .back-button .button-icon {
+          margin-right: 0;
+        }
         /* Make novel list items simpler */
         #novelList li {
           padding: 12px 10px;
           flex-direction: column; /* Stack title and buttons */
           align-items: flex-start;
+          gap: 8px; /* Add gap for stacked items */
         }
         .novel-item-title {
           margin-right: 0;
-          margin-bottom: 8px; /* Space between title and buttons */
+          /* margin-bottom: 8px; gap handles spacing */
         }
         #novelList li div {
           width: 100%;
           text-align: right; /* Align buttons right */
         }
         #novelList li div button {
-          margin: 0 0 0 5px; /* Adjust button spacing */
+          margin-left: 5px; /* Adjust button spacing */
         }
 
         /* Adjust create/import area */
@@ -875,12 +890,13 @@
           flex-direction: column; /* Stack input and buttons */
           align-items: stretch; /* Make items full width */
           padding: 10px;
+          gap: 8px;
         }
         .create-import-area input[type="text"] {
-          margin-bottom: 8px; /* Space below input */
+          /* margin-bottom: 8px; gap handles spacing */
         }
         .create-import-area button {
-          margin: 4px 0; /* Adjust button margins */
+          /* margin: 4px 0; gap handles spacing */
         }
       }
 
@@ -888,20 +904,28 @@
       @media (max-width: 480px) {
         body {
           padding: 5px;
+          /* overflow-x: hidden; Consider if needed */
         }
         .container {
           padding: 10px;
-          border-radius: 0; /* Remove container radius for edge-to-edge feel */
+          border-radius: 0;
+          width: 100%;
+          max-width: none;
+          border: none; /* Remove border/shadow on smallest screens */
+          box-shadow: none;
         }
         .chapter {
           padding: 10px 0px; /* Minimal horizontal padding */
           border-radius: 0;
-          margin-left: -5px; /* Adjust to align with container if needed */
-          margin-right: -5px; /* Adjust to align with container if needed */
+          width: 100%;
+          border-inline: none;
+          box-shadow: none; /* Simplify appearance */
         }
         .scene-beat {
           padding: 8px 0;
           border-radius: 0;
+          width: 100%;
+          background-color: transparent; /* Remove bg color */
         }
         h1 {
           font-size: 1.6em;
@@ -923,6 +947,10 @@
           min-width: 30px;
           font-size: 0.9rem;
         }
+        .novel-editor-header {
+          padding: 8px;
+          border-radius: 0;
+        }
         .novel-editor-header .action-buttons button,
         .novel-editor-header .back-button,
         .novel-editor-header .delete-novel-btn {
@@ -930,6 +958,18 @@
         }
         .novel-editor-header .novel-title-edit input[type="text"] {
           font-size: 1.1em;
+        }
+        input[type="text"],
+        textarea {
+          max-width: 100%; /* Prevent them from ever exceeding container */
+        }
+        .modal-dialog {
+          max-width: 100%;
+          width: 100%;
+          height: 100%;
+          max-height: 100vh;
+          border-radius: 0;
+          box-shadow: none;
         }
       }
 
