@@ -288,7 +288,6 @@
       .chapter {
         margin-bottom: 40px; /* Space between chapters */
         padding: 20px 15px;
-        /* border: 1px solid var(--border-color); border-left: none; border-right: none; */
         border-block: 1px solid var(--border-color);
         border-inline: none;
         border-radius: var(--border-radius);
@@ -335,11 +334,9 @@
         flex-shrink: 0; /* Prevent controls from shrinking too much */
         gap: 8px; /* Space between control buttons */
       }
-      /* Removed redundant margin reset for .chapter-controls button, .beat-controls button */
 
       /* --- Scene Beat --- */
       .scene-beat {
-        /* Remove old borders */
         border: none;
         padding: 15px 10px;
         margin: 20px 0; /* Space between beats */
@@ -362,14 +359,12 @@
       .beat-text-area {
         padding: 10px;
         background-color: #e0e7ff; /* Slightly different light blue for instructions */
-        /* border: 1px solid #c7d2fe; border-left: none; border-right: none; */
         border-block: 1px solid #c7d2fe;
         border-inline: none;
         border-radius: var(--border-radius);
         min-height: 60px;
         white-space: pre-wrap;
         width: 100%;
-        /* box-sizing is universal */
         color: var(--text-color);
         line-height: 1.5;
         margin-bottom: 15px; /* Space before controls */
@@ -387,7 +382,6 @@
 
       /* Style the generated content label */
       .scene-beat > p:nth-of-type(2) {
-        /* Assuming label is 2nd p */
         margin-top: 20px; /* Space above label */
         margin-bottom: 8px;
         font-size: 0.9em;
@@ -492,7 +486,6 @@
       }
 
       .summary-controls {
-        /* Container for summary button + feedback */
         margin-bottom: 10px;
       }
       .summary-text-area {
@@ -609,7 +602,6 @@
         flex-shrink: 0;
         gap: 10px; /* Space between footer buttons */
       }
-      /* Removed redundant margin reset for .modal-footer button */
 
       .prompt-textarea {
         width: 100%;
@@ -617,13 +609,11 @@
         font-family: "Menlo", "Monaco", "Consolas", monospace; /* Monospace for prompts */
         font-size: 0.9rem;
         padding: 15px 10px;
-        /* border: 1px solid var(--border-color); border-left: none; border-right: none; */
         border-block: 1px solid var(--border-color);
         border-inline: none;
         border-radius: var(--border-radius);
         margin-bottom: 10px;
         resize: vertical;
-        /* box-sizing is universal */
         background-color: var(--light-bg); /* Light bg for readonly textareas */
       }
       .prompt-textarea:not([readOnly]) {
@@ -661,7 +651,6 @@
         line-height: 1.7;
         padding: 15px 10px;
         background-color: #fff;
-        /* border: 1px solid var(--border-color); border-left: none; border-right: none; */
         border-block: 1px solid var(--border-color);
         border-inline: none;
         border-radius: var(--border-radius);
@@ -669,7 +658,6 @@
         color: #333; /* Slightly lighter black for reading */
       }
       .novel-text-modal-body {
-        /* Add wrapper for max height */
         max-height: 65vh;
         overflow-y: auto;
         padding: 5px; /* Padding around the scrollable area */
@@ -727,7 +715,6 @@
       .novel-editor-header .action-buttons button {
         padding: 8px 10px; /* Make buttons slightly smaller */
         font-size: 0.85rem;
-        /* white-space: nowrap; Inherited from base button */
       }
 
       /* Group Chapter Filter */
@@ -763,7 +750,6 @@
       /* Remove original containers if they are now empty */
       .import-export-area,
       .chapter-filter {
-        /* If content moved, reset styles */
         margin: 0;
         padding: 0;
         background: none;
@@ -805,7 +791,6 @@
         .novel-editor-header .delete-novel-btn {
           padding: 8px; /* Icon only padding */
         }
-        /* Ensure icon only buttons don't have extra margin */
         .novel-editor-header .action-buttons button .button-icon,
         .novel-editor-header .back-button .button-icon,
         .novel-editor-header .delete-novel-btn .button-icon {
@@ -822,19 +807,16 @@
           padding: 15px; /* Reduce container padding */
         }
         .chapter {
-          /* Reduce padding, ensure borders only top/bottom */
           padding: 15px 5px;
           border-block: 1px solid var(--border-color);
           border-inline: none;
           border-radius: var(--border-radius); /* Keep if desired */
-          /* Explicitly remove L/R radius if L/R borders removed */
           border-top-left-radius: var(--border-radius);
           border-top-right-radius: var(--border-radius);
           border-bottom-left-radius: var(--border-radius);
           border-bottom-right-radius: var(--border-radius);
         }
         .scene-beat {
-          /* Reduce padding (border already none) */
           padding: 10px 5px;
           margin-inline: 0; /* Remove margin if chapter padding is less */
         }
@@ -843,11 +825,9 @@
         .summary-text-area,
         .prompt-textarea,
         .novel-text-display {
-          /* Reduce internal horizontal padding */
           padding-inline: 8px;
         }
 
-        /* Further adjustments to header for smaller screens */
         .novel-editor-header {
           gap: 8px;
         }
@@ -866,7 +846,6 @@
         .novel-editor-header .back-button .button-icon {
           margin-right: 0;
         }
-        /* Make novel list items simpler */
         #novelList li {
           padding: 12px 10px;
           flex-direction: column; /* Stack title and buttons */
@@ -875,7 +854,6 @@
         }
         .novel-item-title {
           margin-right: 0;
-          /* margin-bottom: 8px; gap handles spacing */
         }
         #novelList li div {
           width: 100%;
@@ -885,26 +863,17 @@
           margin-left: 5px; /* Adjust button spacing */
         }
 
-        /* Adjust create/import area */
         .create-import-area {
           flex-direction: column; /* Stack input and buttons */
           align-items: stretch; /* Make items full width */
           padding: 10px;
           gap: 8px;
         }
-        .create-import-area input[type="text"] {
-          /* margin-bottom: 8px; gap handles spacing */
-        }
-        .create-import-area button {
-          /* margin: 4px 0; gap handles spacing */
-        }
       }
 
-      /* Even smaller screen adjustments */
       @media (max-width: 480px) {
         body {
           padding: 5px;
-          /* overflow-x: hidden; Consider if needed */
         }
         .container {
           padding: 10px;
@@ -937,7 +906,6 @@
           font-size: 1.15em;
         }
 
-        /* Ensure buttons don't get too tiny */
         button {
           padding: 8px 12px;
           font-size: 0.85rem;
@@ -1311,7 +1279,6 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                     beat={beat}
                     beatIndex={index}
                     totalBeats={chapter.sceneBeats.length}
-                    // onUpdateBeatText removed
                     onUpdateGeneratedText={onUpdateGeneratedText}
                     onDeleteBeat={onDeleteBeat}
                     onMoveBeat={onMoveBeat}
@@ -1389,7 +1356,6 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
         };
 
         const filteredChapters = useMemo(() => {
-          // ... (filtering logic remains the same)
           if (chapterFilter === "all") {
             return novel.chapters;
           }
@@ -1398,14 +1364,11 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
 
         return (
           <div className="view" id="novelEditorView">
-            {/* === NEW Header Container === */}
             <div className="novel-editor-header">
               <button onClick={onBack} className="back-button">
-                ← <span className="button-text-desktop">Back to List</span>{" "}
-                {/* Hide text on mobile? */}
+                ← <span className="button-text-desktop">Back to List</span>
               </button>
 
-              {/* Novel Title Input stays within its div for potential specific styling */}
               <div className="novel-title-edit">
                 <input
                   type="text"
@@ -1414,11 +1377,10 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                   onChange={(e) =>
                     onUpdateNovel(novel.id, { title: e.target.value })
                   }
-                  placeholder="Novel Title" // Add placeholder
+                  placeholder="Novel Title"
                 />
               </div>
 
-              {/* Action Buttons Group */}
               <div className="action-buttons">
                 <button onClick={handleExport} title="Export Novel">
                   <svg
@@ -1478,8 +1440,6 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                   title="User Manual"
                 >
                   <button>
-                    {" "}
-                    {/* Or just style the <a> like a button */}
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 20 20"
@@ -1488,20 +1448,16 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                       height="16"
                       style={{ verticalAlign: "middle" }}
                     >
-                      {/* Question Mark Icon Path */}
                       <path
                         fillRule="evenodd"
                         d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-4a.75.75 0 01.75.75v.008a.75.75 0 01-1.5 0V6.75A.75.75 0 0110 6zm-.25 3.25a.75.75 0 00-1.5 0v4.5c0 .414.336.75.75.75h.5a.75.75 0 00.75-.75v-4.5z"
                         clipRule="evenodd"
                       />
                     </svg>
-                    <span className="button-text-mobile">Help</span>{" "}
-                    {/* Optional: Mobile Text */}
-                    <span className="button-text-desktop">Manual</span>{" "}
-                    {/* Optional: Desktop Text */}
+                    <span className="button-text-mobile">Help</span>
+                    <span className="button-text-desktop">Manual</span>
                   </button>
                 </a>
-                {/* Feedback can be here or moved elsewhere if needed */}
                 <div
                   className="feedback-container"
                   style={{ display: "inline-block", marginLeft: "10px" }}
@@ -1513,7 +1469,6 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                 </div>
               </div>
 
-              {/* Chapter Filter Group */}
               <div className="chapter-filter-group">
                 <label htmlFor="chapterFilter">Show:</label>
                 <select
@@ -1531,7 +1486,6 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                 </select>
               </div>
 
-              {/* Delete Button (Pushed Right) */}
               <button
                 className="delete-btn delete-novel-btn"
                 onClick={() => onDeleteNovel(novel.id)}
@@ -1555,7 +1509,6 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                 <span className="button-text-desktop">Delete Novel</span>
               </button>
             </div>
-            {/* === End Header Container === */}
             <hr />
             <div id="chaptersContainer">
               {filteredChapters.length === 0 &&
@@ -1733,7 +1686,6 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
         const [novels, setNovels] = useState([]);
         const [currentView, setCurrentView] = useState("list"); // 'list' or 'editor'
         const [currentNovelId, setCurrentNovelId] = useState(null);
-        // **** Modal content now holds type AND data ****
         const [modalContent, setModalContent] = useState(null); // { type: 'prompt'|'template'|'export'|'editBeat'|'editGeneratedText', data: ... }
         const [summaryCollapseStates, setSummaryCollapseStates] = useState({});
 
@@ -2317,7 +2269,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
               chapterId,
               beatId,
               generatedText: generatedText || "",
-            }, // Ensure text is not null/undefined
+            },
           });
         };
 
@@ -2480,7 +2432,6 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                 finishAccumulatingText();
                 readingMode = "generated";
               } else {
-                // Only accumulate if we are in a known reading mode or just after a header
                 if (
                   readingMode ||
                   line.startsWith(" ") ||
@@ -2489,12 +2440,11 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                 ) {
                   accumulatingText += line + "\n";
                 } else if (trimmedLine) {
-                  // If it's not whitespace and not a header, start accumulating (e.g. first line of template/summary)
                   accumulatingText += line + "\n";
                 }
               }
             });
-            finishAccumulatingText(); // Finish last section
+            finishAccumulatingText();
 
             if (
               !novel.title ||
@@ -2601,8 +2551,8 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                 onAddBeat={handleAddBeat}
                 onDeleteBeat={handleDeleteBeat}
                 onMoveBeat={handleMoveBeat}
-                onUpdateBeatText={handleUpdateBeatText} // Pass down for saving beat edit
-                onUpdateGeneratedText={handleUpdateGeneratedText} // Pass down for clear/saving gen text edit
+                onUpdateBeatText={handleUpdateBeatText}
+                onUpdateGeneratedText={handleUpdateGeneratedText}
                 onUpdateChapterSummary={handleUpdateChapterSummary}
                 onExportNovel={handleExportNovel}
                 onShowPrompt={handleShowPrompt}
@@ -2610,13 +2560,12 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                 summaryCollapseStates={summaryCollapseStates}
                 onToggleSummaryCollapse={handleToggleSummaryCollapse}
                 onCopySummaryPrompt={handleCopySummaryPrompt}
-                onEditBeat={handleEditBeat} // Pass down edit beat trigger
+                onEditBeat={handleEditBeat}
                 onShowEditGeneratedTextModal={handleShowEditGeneratedTextModal}
-                handleViewNovelText={handleViewNovelText} // Pass the function that shows the novel text modal
+                handleViewNovelText={handleViewNovelText}
               />
             )}
 
-            {/* Render Modals */}
             {modalContent && modalContent.type === "prompt" && (
               <PromptModal
                 promptText={modalContent.data && modalContent.data.text}
@@ -2644,7 +2593,6 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
             )}
             {modalContent && modalContent.type === "editBeat" && (
               <EditBeatModal
-                // Pass necessary data and save handler
                 beatText={modalContent.data && modalContent.data.text}
                 onClose={handleCloseModal}
                 onSave={(editedText) =>
@@ -2657,7 +2605,6 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                 }
               />
             )}
-            {/* Render Edit Generated Text Modal */}
             {modalContent && modalContent.type === "editGeneratedText" && (
               <EditGeneratedTextModal
                 generatedText={
@@ -2685,7 +2632,6 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
         );
       }
 
-      // --- Specific Modal Components ---
       function PromptModal({ promptText, onClose, onCopy }) {
         const [copyFeedback, setCopyFeedback] = useState("");
         const handleCopy = () => {
@@ -2823,7 +2769,6 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
         );
       }
 
-      // --- Edit Beat Modal Component ---
       function EditBeatModal({ beatText, onClose, onSave }) {
         const [editedText, setEditedText] = useState(beatText || "");
         const handleSave = () => {
@@ -2843,17 +2788,16 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
             }
           >
             <textarea
-              className="prompt-textarea" // Reuse class
+              className="prompt-textarea"
               value={editedText}
               onChange={(e) => setEditedText(e.target.value)}
               placeholder="Enter scene beat instruction..."
-              autoFocus // Focus textarea on open
+              autoFocus
             />
           </Modal>
         );
       }
 
-      // --- Edit Generated Text Modal Component ---
       function EditGeneratedTextModal({ generatedText, onClose, onSave }) {
         const [editedText, setEditedText] = useState(generatedText || "");
         const handleSave = () => {
@@ -2874,11 +2818,11 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
             }
           >
             <textarea
-              className="prompt-textarea" // Reuse class, maybe adjust min-height if needed
+              className="prompt-textarea"
               value={editedText}
               onChange={(e) => setEditedText(e.target.value)}
               placeholder="Edit the generated content..."
-              autoFocus // Focus textarea on open
+              autoFocus
             />
           </Modal>
         );
@@ -2933,7 +2877,6 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
         );
       }
 
-      // --- Render the App ---
       const root = ReactDOM.createRoot(document.getElementById("root"));
       root.render(<App />);
     </script>
