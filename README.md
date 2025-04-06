@@ -1,4 +1,4 @@
-# NovelTokenToken - AI-Assisted Novel Editor (Local Storage Version)
+# NovelTokenToken - AI-Assisted Novel Editor
 
 NovelTokenToken is a lightweight, single-page web application designed to help authors outline and structure their novels. It focuses on managing chapters and scene beats, and facilitates interaction with external AI/LLM services (like ChatGPT, Claude, etc.) through specialized prompt generation and copy/paste workflows.
 

@@ -1,0 +1,13 @@
+{
+  "name": "noveltokentoken",
+  "version": "1.0.0",
+  "description": "AI-Assisted Novel Editor",
+  "scripts": {
+    "local": "http-server ./ -p 8080"
+  },
+  "author": "NovelTokenToken",
+  "license": "ISC",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

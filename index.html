@@ -99,9 +99,9 @@
       }
 
       /* Ensure text content wraps */
-      .novel-item-title, 
+      .novel-item-title,
       .chapter-title,
-      .beat-text-area, 
+      .beat-text-area,
       .generated-text-area-display,
       .scene-beat p {
         word-wrap: break-word;
@@ -954,12 +954,53 @@
         }
       }
 
-      .import-button, 
+      .import-button,
       .import-area .secondary-btn {
         margin: 10px;
       }
 
       /* --- END MEDIA QUERIES --- */
+
+      /* --- Added Firebase Styles --- */
+      .auth-container {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end; /* Align to the right */
+        padding: 5px 0 15px; /* Add some padding */
+        gap: 10px;
+        flex-wrap: wrap; /* Allow wrapping */
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 20px;
+      }
+      .user-info img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        vertical-align: middle;
+        margin-right: 8px;
+      }
+      .user-info span {
+        vertical-align: middle;
+        font-size: 0.9em;
+        color: var(--text-color-light);
+      }
+      .loading-indicator {
+        text-align: center;
+        padding: 40px;
+        font-size: 1.2em;
+        color: var(--text-color-light);
+      }
+      .login-prompt {
+        text-align: center;
+        padding: 30px;
+        background-color: var(--light-bg);
+        border-radius: var(--border-radius);
+        margin-top: 20px;
+      }
+      .login-prompt p {
+        margin-bottom: 15px;
+        color: var(--text-color-light);
+      }
     </style>
   </head>
   <body>
@@ -977,13 +1018,52 @@
     ></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
+    <!-- Firebase SDKs (Using compat libraries for easier integration with potential older patterns) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Initialization -->
+    <script>
+      // --- IMPORTANT: REPLACE WITH YOUR ACTUAL FIREBASE CONFIG ---
+      const firebaseConfig = {
+        apiKey: "AIzaSyA0TaS0k2IU0ZomZ_WWScv7b4P3y2odyZk",
+        authDomain: "noveltokentoken.firebaseapp.com",
+        projectId: "noveltokentoken",
+        storageBucket: "noveltokentoken.firebasestorage.app",
+        messagingSenderId: "775614082958",
+        appId: "1:775614082958:web:033c020f78c43d4ca47edf",
+      };
+
+      let auth, db, googleProvider;
+      try {
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        auth = firebase.auth();
+        db = firebase.firestore();
+        googleProvider = new firebase.auth.GoogleAuthProvider();
+        console.log("Firebase Initialized Successfully");
+      } catch (error) {
+        console.error("Firebase Initialization Error:", error);
+        // Display error to the user in the UI if #root exists
+        const rootEl = document.getElementById("root");
+        if (rootEl) {
+          rootEl.innerHTML = `<div style="color: red; padding: 20px; border: 1px solid red; background-color: #ffebee;">
+                  <h2>Firebase Initialization Failed</h2>
+                  <p>Could not connect to Firebase. Please check the console for errors and ensure your firebaseConfig is correct in the HTML.</p>
+                  <p>Error: ${error.message}</p>
+              </div>`;
+        }
+      }
+    </script>
+
     <!-- React Application Code (using Babel) -->
     <script type="text/babel">
-      const { useState, useEffect, useCallback, useMemo } = React;
+      const { useState, useEffect, useCallback, useMemo, useRef } = React;
 
       // --- Constants ---
-      const LS_KEY = "novels_react";
-      const LS_SUMMARY_STATE_KEY = "chapterSummaryStates_react";
+      const LS_KEY = "novels_react_local_backup"; // Changed key to indicate backup role
+      const LS_SUMMARY_STATE_KEY = "chapterSummaryStates_react_local_backup";
       const DEFAULT_PROMPT_TEMPLATE = `The story so far:
 {storySoFar}
 
@@ -1014,13 +1094,59 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
       }
 
       function findChapeter(novel, chapterId) {
+        // Typo: Chapter*
         if (!novel || !novel.chapters) return null;
         return novel.chapters.find((chapter) => chapter.id === chapterId);
       }
 
-      // --- Modal Component ---
+      // Simple debounce function
+      function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      }
+
+      // Data validation function (can be expanded)
+      function validateAndCleanNovels(loadedNovels) {
+        if (!Array.isArray(loadedNovels)) {
+          console.warn("Loaded novels data is not an array, resetting.");
+          return [];
+        }
+        // Basic validation/migration (ensure arrays/fields exist)
+        loadedNovels.forEach((novel) => {
+          if (typeof novel !== "object" || novel === null) return; // Skip invalid entries
+          novel.id = novel.id || generateId();
+          novel.title = novel.title || "Untitled Novel";
+          // Ensure 'template' exists, even if null
+          novel.template = novel.template === undefined ? null : novel.template;
+          novel.chapters = Array.isArray(novel.chapters) ? novel.chapters : [];
+          novel.chapters.forEach((chapter) => {
+            if (typeof chapter !== "object" || chapter === null) return;
+            chapter.id = chapter.id || generateId();
+            chapter.title = chapter.title || "Untitled Chapter";
+            chapter.summary = chapter.summary || "";
+            chapter.sceneBeats = Array.isArray(chapter.sceneBeats)
+              ? chapter.sceneBeats
+              : [];
+            chapter.sceneBeats.forEach((beat) => {
+              if (typeof beat !== "object" || beat === null) return;
+              beat.id = beat.id || generateId();
+              beat.text = beat.text || "";
+              beat.generatedText = beat.generatedText || "";
+            });
+          });
+        });
+        return loadedNovels;
+      }
+
+      // --- Modal Component --- (Existing, Unchanged)
       function Modal({ title, children, footer, onClose }) {
-        // Handle Escape key press
         useEffect(() => {
           const handleKeyDown = (event) => {
             if (event.key === "Escape") {
@@ -1137,10 +1263,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
             >
               <strong>AI Generated Content:</strong>
             </p>
-            {/* Display generated text */}
-            <div
-              className="generated-text-area-display" // Use display class
-            >
+            <div className="generated-text-area-display">
               {beat.generatedText}
             </div>
             <div style={{ textAlign: "right", marginTop: "5px" }}>
@@ -1214,7 +1337,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
         );
       }
 
-      // --- Chapter Component ---
+      // --- Chapter Component --- (Existing, Unchanged)
       function Chapter({
         novelId,
         chapter,
@@ -1234,7 +1357,6 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
         onCopySummaryPrompt,
         onEditBeat,
         onShowEditGeneratedTextModal,
-        summaryCollapseStates,
       }) {
         const [newBeatText, setNewBeatText] = useState("");
 
@@ -1302,7 +1424,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                     onMoveBeat={onMoveBeat}
                     onShowPrompt={onShowPrompt}
                     onEditBeat={onEditBeat}
-                    onShowEditGeneratedTextModal={onShowEditGeneratedTextModal} // **** PASS DOWN ****
+                    onShowEditGeneratedTextModal={onShowEditGeneratedTextModal}
                   />
                 ))
               )}
@@ -1374,14 +1496,35 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
         };
 
         const filteredChapters = useMemo(() => {
+          if (!novel || !Array.isArray(novel.chapters)) return [];
           if (chapterFilter === "all") {
             return novel.chapters;
           }
           return novel.chapters.filter((ch) => ch.id === chapterFilter);
         }, [novel.chapters, chapterFilter]);
 
+        // Reset filter if the selected chapter is deleted or novel changes
+        useEffect(() => {
+          if (
+            chapterFilter !== "all" &&
+            !novel.chapters.find((ch) => ch.id === chapterFilter)
+          ) {
+            setChapterFilter("all");
+          }
+        }, [novel.chapters, chapterFilter]);
+
+        if (!novel) {
+          return (
+            <div>
+              Error: Novel not found.{" "}
+              <button onClick={onBack}>Back to List</button>
+            </div>
+          ); // Handle case where novel might become null
+        }
+
         return (
           <div className="view" id="novelEditorView">
+            {/* Novel Editor Header */}
             <div className="novel-editor-header">
               <button onClick={onBack} className="back-button">
                 ← <span className="button-text-desktop">Back to List</span>
@@ -1533,15 +1676,22 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                 chapterFilter !== "all" &&
                 novel.chapters.length > 0 && (
                   <p style={{ fontStyle: "italic", color: "#888" }}>
-                    Chapter not found. Showing all chapters. Select "All
-                    Chapters" above.
+                    Chapter not found or filter mismatch. Select "All Chapters"
+                    to see all content.
                   </p>
                 )}
               {filteredChapters.length > 0
                 ? filteredChapters.map((chapter) => {
+                    // Find the original index for correct move button disabling
                     const originalIndex = novel.chapters.findIndex(
                       (ch) => ch.id === chapter.id
                     );
+                    // Determine if the summary for THIS chapter is collapsed
+                    const isSummaryCollapsed =
+                      typeof summaryCollapseStates[chapter.id] !== "undefined"
+                        ? summaryCollapseStates[chapter.id]
+                        : true; // Default to collapsed
+
                     return (
                       <Chapter
                         key={chapter.id}
@@ -1557,13 +1707,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                         onDeleteBeat={onDeleteBeat}
                         onMoveBeat={onMoveBeat}
                         onShowPrompt={onShowPrompt}
-                        isSummaryCollapsed={
-                          typeof summaryCollapseStates[chapter.id] !==
-                            "undefined" &&
-                          summaryCollapseStates[chapter.id] !== null
-                            ? summaryCollapseStates[chapter.id]
-                            : true
-                        }
+                        isSummaryCollapsed={isSummaryCollapsed}
                         onToggleSummaryCollapse={onToggleSummaryCollapse}
                         onUpdateChapterSummary={onUpdateChapterSummary}
                         onCopySummaryPrompt={onCopySummaryPrompt}
@@ -1591,17 +1735,27 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
         onOpenNovel,
         onDeleteNovel,
         onImportNovel,
+        user, // Receive user prop
+        loading, // Receive loading prop
       }) {
         const [newNovelTitle, setNewNovelTitle] = useState("");
         const [importVisible, setImportVisible] = useState(false);
         const [importText, setImportText] = useState("");
 
         const handleCreate = () => {
+          if (!user) {
+            alert("Please log in to create a novel.");
+            return;
+          }
           onCreateNovel(newNovelTitle);
           setNewNovelTitle(""); // Clear input
         };
 
         const handleImport = () => {
+          if (!user) {
+            alert("Please log in to import a novel.");
+            return;
+          }
           if (!importText.trim()) {
             alert("Please paste the exported novel markdown content first.");
             return;
@@ -1612,6 +1766,11 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
         };
 
         const toggleImport = () => {
+          if (!user && !importVisible) {
+            // Prevent opening import if logged out
+            alert("Please log in to import a novel.");
+            return;
+          }
           setImportVisible(!importVisible);
           if (importVisible) {
             // If closing
@@ -1626,13 +1785,18 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
           );
         }, [novels]);
 
+        // Disable inputs/buttons if loading or not logged in
+        const isDisabled = loading || !user;
+
         return (
           <div className="view" id="novelListView">
             <h2>Novels</h2>
             <ul id="novelList">
-              {sortedNovels.length === 0 ? (
+              {isDisabled && <li>Loading novels...</li>}
+              {!isDisabled && sortedNovels.length === 0 && (
                 <li>No novels found. Create one below or import one.</li>
-              ) : (
+              )}
+              {!isDisabled &&
                 sortedNovels.map((novel) => (
                   <li key={novel.id}>
                     <span
@@ -1653,8 +1817,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                       </button>
                     </div>
                   </li>
-                ))
-              )}
+                ))}
             </ul>
             <div>
               <input
@@ -1663,9 +1826,18 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                 placeholder="New Novel Title"
                 value={newNovelTitle}
                 onChange={(e) => setNewNovelTitle(e.target.value)}
+                disabled={isDisabled}
               />
-              <button onClick={handleCreate}>Create New Novel</button>
-              <button onClick={toggleImport} className="import-button">
+              <button onClick={handleCreate} disabled={isDisabled}>
+                Create New Novel
+              </button>
+              <button
+                onClick={toggleImport}
+                className="import-button"
+                disabled={loading}
+              >
+                {" "}
+                {/* Allow toggling import cancel even if logged out */}
                 {importVisible ? "Cancel Import" : "Import Novel"}
               </button>
             </div>
@@ -1677,8 +1849,11 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                   placeholder="Paste exported novel markdown here..."
                   value={importText}
                   onChange={(e) => setImportText(e.target.value)}
+                  disabled={isDisabled}
                 ></textarea>
-                <button onClick={handleImport}>Import</button>
+                <button onClick={handleImport} disabled={isDisabled}>
+                  Import
+                </button>
                 <button className="secondary-btn" onClick={toggleImport}>
                   Cancel
                 </button>
@@ -1699,6 +1874,53 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
         );
       }
 
+      // --- Auth UI Component ---
+      function AuthUI({ user, onLogin, onLogout, loading }) {
+        if (loading) {
+          return <div className="auth-container">Loading user...</div>;
+        }
+
+        return (
+          <div className="auth-container">
+            {user ? (
+              <React.Fragment>
+                <div className="user-info">
+                  <img
+                    src={user.photoURL || "placeholder.png"}
+                    alt="User profile"
+                    referrerPolicy="no-referrer"
+                  />
+                  <span>Welcome, {user.displayName || user.email}!</span>
+                </div>
+                <button onClick={onLogout} className="secondary-btn">
+                  Logout
+                </button>
+              </React.Fragment>
+            ) : (
+              <button onClick={onLogin}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  width="16"
+                  height="16"
+                  style={{ verticalAlign: "middle", marginRight: "5px" }}
+                >
+                  <path d="M9.99 1.75a8.25 8.25 0 00-5.756 14.214.75.75 0 01-.993-1.126 6.75 6.75 0 1111.498 0 .75.75 0 11-.993 1.126A8.25 8.25 0 009.99 1.75z" />
+                  <path d="M12 9.75a.75.75 0 01.75.75v3a.75.75 0 01-1.5 0v-3a.75.75 0 01.75-.75z" />
+                  <path
+                    fillRule="evenodd"
+                    d="M9.99 3.25a.75.75 0 01.75.75v6a.75.75 0 01-1.5 0V4a.75.75 0 01.75-.75z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Login with Google
+              </button>
+            )}
+          </div>
+        );
+      }
+
       // --- Main App Component ---
       function App() {
         const [novels, setNovels] = useState([]);
@@ -1706,104 +1928,308 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
         const [currentNovelId, setCurrentNovelId] = useState(null);
         const [modalContent, setModalContent] = useState(null); // { type: 'prompt'|'template'|'export'|'editBeat'|'editGeneratedText', data: ... }
         const [summaryCollapseStates, setSummaryCollapseStates] = useState({});
+        const [user, setUser] = useState(null); // Firebase user object
+        const [loading, setLoading] = useState(true); // Loading state for auth and initial data
+        const isSaving = useRef(false); // Ref to track if a save is in progress
 
-        // --- Load initial data ---
+        // Check if Firebase was initialized
+        if (typeof auth === "undefined" || typeof db === "undefined") {
+          // Render an error message if Firebase didn't initialize
+          // This was handled in the initial script, but double-check
+          return (
+            <div className="container">
+              <h1>NovelTokenToken</h1>
+              <div
+                style={{
+                  color: "red",
+                  padding: "20px",
+                  border: "1px solid red",
+                  backgroundColor: "#ffebee",
+                }}
+              >
+                <h2>Firebase Connection Error</h2>
+                <p>
+                  The application could not connect to Firebase. Please ensure
+                  the Firebase configuration in the HTML is correct and check
+                  the browser console for more details.
+                </p>
+              </div>
+            </div>
+          );
+        }
+
+        // --- Authentication Listener ---
         useEffect(() => {
-          // Load Novels
-          const storedNovels = localStorage.getItem(LS_KEY);
-          let loadedNovels = [];
-          if (storedNovels) {
-            try {
-              loadedNovels = JSON.parse(storedNovels);
-              if (!Array.isArray(loadedNovels)) {
-                console.warn("Loaded novels data is not an array, resetting.");
-                loadedNovels = [];
-              }
-              // Basic validation/migration (ensure arrays/fields exist)
-              loadedNovels.forEach((novel) => {
-                if (typeof novel !== "object" || novel === null) return; // Skip invalid entries
-                novel.id = novel.id || generateId();
-                novel.title = novel.title || "Untitled Novel";
-                novel.template =
-                  novel.template === undefined ? null : novel.template;
-                novel.chapters = Array.isArray(novel.chapters)
-                  ? novel.chapters
-                  : [];
-                novel.chapters.forEach((chapter) => {
-                  if (typeof chapter !== "object" || chapter === null) return;
-                  chapter.id = chapter.id || generateId();
-                  chapter.title = chapter.title || "Untitled Chapter";
-                  chapter.summary = chapter.summary || "";
-                  chapter.sceneBeats = Array.isArray(chapter.sceneBeats)
-                    ? chapter.sceneBeats
-                    : [];
-                  chapter.sceneBeats.forEach((beat) => {
-                    if (typeof beat !== "object" || beat === null) return;
-                    beat.id = beat.id || generateId();
-                    beat.text = beat.text || "";
-                    beat.generatedText = beat.generatedText || "";
-                  });
-                });
-              });
-            } catch (e) {
-              console.error("Error parsing novels from local storage:", e);
-              loadedNovels = [];
+          setLoading(true);
+          const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
+            if (firebaseUser) {
+              console.log("User logged in:", firebaseUser.uid);
+              setUser(firebaseUser);
+              await loadDataFromFirestore(firebaseUser.uid); // Load data after user is set
+            } else {
+              console.log("User logged out.");
+              setUser(null);
+              setNovels([]); // Clear data when logged out
+              setSummaryCollapseStates({});
+              setCurrentView("list"); // Go back to list view on logout
+              setCurrentNovelId(null);
+              // Optionally clear local storage backup on logout
+              // localStorage.removeItem(LS_KEY);
+              // localStorage.removeItem(LS_SUMMARY_STATE_KEY);
+              setLoading(false); // Finished processing logout
             }
-          }
-          setNovels(loadedNovels);
-
-          // Load Summary Collapse States
-          const storedStates = localStorage.getItem(LS_SUMMARY_STATE_KEY);
-          try {
-            const loadedStates = JSON.parse(storedStates || "{}");
-            setSummaryCollapseStates(
-              typeof loadedStates === "object" && loadedStates !== null
-                ? loadedStates
-                : {}
-            );
-          } catch (e) {
-            console.error("Error parsing summary states:", e);
-            setSummaryCollapseStates({});
-          }
+            // setLoading(false) will be called inside loadDataFromFirestore or here if logged out
+          });
+          return () => unsubscribe(); // Cleanup listener on unmount
         }, []);
 
-        // --- Save data to local storage on change ---
-        useEffect(() => {
-          if (Array.isArray(novels)) {
-            try {
-              localStorage.setItem(LS_KEY, JSON.stringify(novels));
-            } catch (e) {
-              console.error("Error saving novels:", e);
-              alert("Error saving novel data. Local storage might be full.");
-            }
+        // --- Data Loading from Firestore ---
+        const loadDataFromFirestore = async (userId) => {
+          if (!userId) {
+            setLoading(false); // Ensure loading stops if no userId
+            return;
           }
-        }, [novels]);
-
-        useEffect(() => {
+          console.log("Loading data for user:", userId);
+          setLoading(true); // Indicate loading data specifically
+          const userDocRef = db
+            .collection("users")
+            .doc(userId)
+            .collection("novels")
+            .doc("data");
           try {
-            localStorage.setItem(
-              LS_SUMMARY_STATE_KEY,
-              JSON.stringify(summaryCollapseStates)
-            );
-          } catch (e) {
-            console.error("Error saving summary states:", e);
-          }
-        }, [summaryCollapseStates]);
+            const docSnap = await userDocRef.get();
+            if (docSnap.exists) {
+              const data = docSnap.data();
+              const loadedNovels = validateAndCleanNovels(data.novels || []);
+              const loadedStates = data.summaryStates || {};
 
-        // --- State Update Helper ---
+              setNovels(loadedNovels);
+              setSummaryCollapseStates(
+                typeof loadedStates === "object" && loadedStates !== null
+                  ? loadedStates
+                  : {}
+              );
+              console.log("Data loaded from Firestore.");
+
+              // Also update local storage backup after successful Firestore load
+              localStorage.setItem(LS_KEY, JSON.stringify(loadedNovels));
+              localStorage.setItem(
+                LS_SUMMARY_STATE_KEY,
+                JSON.stringify(loadedStates)
+              );
+            } else {
+              console.log(
+                "No novel data found for user in Firestore. Checking localStorage backup."
+              );
+              // Attempt to load from localStorage if Firestore is empty
+              const storedNovels = localStorage.getItem(LS_KEY);
+              const storedStates = localStorage.getItem(LS_SUMMARY_STATE_KEY);
+              let localNovels = [];
+              let localStates = {};
+              if (storedNovels) {
+                try {
+                  localNovels = validateAndCleanNovels(
+                    JSON.parse(storedNovels)
+                  );
+                } catch (e) {
+                  console.error("Error parsing local novels", e);
+                }
+              }
+              if (storedStates) {
+                try {
+                  const parsedStates = JSON.parse(storedStates);
+                  localStates =
+                    typeof parsedStates === "object" && parsedStates !== null
+                      ? parsedStates
+                      : {};
+                } catch (e) {
+                  console.error("Error parsing local summary states", e);
+                }
+              }
+              setNovels(localNovels);
+              setSummaryCollapseStates(localStates);
+              if (localNovels.length > 0) {
+                console.log("Loaded data from localStorage backup.");
+                // Optionally save this back to Firestore immediately
+                // await saveDataToFirestore(userId, localNovels, localStates);
+              } else {
+                console.log("No data in Firestore or localStorage.");
+                setNovels([]);
+                setSummaryCollapseStates({});
+              }
+            }
+          } catch (error) {
+            console.error("Error loading data from Firestore:", error);
+            alert(
+              "Error loading your data. Please check your connection and try again. Offline data might be shown if available."
+            );
+            // Fallback to local storage on error
+            try {
+              const storedNovels = localStorage.getItem(LS_KEY);
+              const storedStates = localStorage.getItem(LS_SUMMARY_STATE_KEY);
+              setNovels(
+                storedNovels
+                  ? validateAndCleanNovels(JSON.parse(storedNovels))
+                  : []
+              );
+              const parsedStates = storedStates ? JSON.parse(storedStates) : {};
+              setSummaryCollapseStates(
+                typeof parsedStates === "object" && parsedStates !== null
+                  ? parsedStates
+                  : {}
+              );
+              console.log(
+                "Loaded data from localStorage due to Firestore error."
+              );
+            } catch (e) {
+              console.error("Error loading from local storage fallback:", e);
+              setNovels([]);
+              setSummaryCollapseStates({});
+            }
+          } finally {
+            setLoading(false); // Finished loading/processing
+          }
+        };
+
+        // --- Data Saving ---
+        const saveDataToFirestore = useCallback(
+          async (userId, currentNovels, currentSummaryStates) => {
+            if (!userId || isSaving.current) {
+              console.log("Save skipped: No user or save already in progress.");
+              return;
+            }
+            if (loading) {
+              console.log("Save skipped: Initial load in progress.");
+              return; // Prevent saving during initial load race condition
+            }
+
+            console.log("Attempting to save data for user:", userId);
+            isSaving.current = true;
+            const userDocRef = db
+              .collection("users")
+              .doc(userId)
+              .collection("novels")
+              .doc("data");
+
+            // Prepare clean data (important!)
+            // Firestore cannot store undefined values directly.
+            // Ensure all properties expected exist, even if null or empty array/string.
+            const cleanNovels = JSON.parse(JSON.stringify(currentNovels || [])); // Deep copy and remove undefined
+            const cleanSummaryStates = JSON.parse(
+              JSON.stringify(currentSummaryStates || {})
+            );
+
+            try {
+              await userDocRef.set(
+                {
+                  novels: cleanNovels,
+                  summaryStates: cleanSummaryStates,
+                },
+                { merge: true }
+              ); // Use merge:true just in case other fields exist, though unlikely here
+              console.log("Data saved successfully to Firestore.");
+
+              // Also save to local storage as a backup
+              localStorage.setItem(LS_KEY, JSON.stringify(cleanNovels));
+              localStorage.setItem(
+                LS_SUMMARY_STATE_KEY,
+                JSON.stringify(cleanSummaryStates)
+              );
+              console.log("Data saved successfully to Local Storage Backup.");
+            } catch (error) {
+              console.error("Error saving data to Firestore:", error);
+              alert(
+                "Error saving changes to the cloud. Your latest changes might only be saved locally in this browser session. Please check your connection."
+              );
+              // Still save to local storage even if Firestore fails
+              try {
+                localStorage.setItem(LS_KEY, JSON.stringify(cleanNovels));
+                localStorage.setItem(
+                  LS_SUMMARY_STATE_KEY,
+                  JSON.stringify(cleanSummaryStates)
+                );
+                console.warn(
+                  "Data saved to Local Storage Backup due to Firestore error."
+                );
+              } catch (localError) {
+                console.error(
+                  "Error saving data to Local Storage Backup:",
+                  localError
+                );
+                alert(
+                  "CRITICAL ERROR: Failed to save data to both Firebase and Local Storage. Changes may be lost."
+                );
+              }
+            } finally {
+              isSaving.current = false; // Allow next save
+            }
+          },
+          [loading]
+        ); // Depend on loading state
+
+        // Debounced save function
+        const debouncedSave = useCallback(
+          debounce((uid, novelsData, summaryData) => {
+            saveDataToFirestore(uid, novelsData, summaryData);
+          }, 2000), // Save 2 seconds after the last change
+          [saveDataToFirestore] // Recreate debounce if saveDataToFirestore changes
+        );
+
+        // Effect to trigger debounced save when data changes and user is logged in
+        useEffect(() => {
+          // Only save if logged in, not loading, and novels state has actually been initialized
+          if (user && !loading) {
+            console.log("Data changed, triggering debounced save...");
+            debouncedSave(user.uid, novels, summaryCollapseStates);
+          }
+        }, [user, novels, summaryCollapseStates, loading, debouncedSave]); // Include loading here
+
+        // --- Authentication Actions ---
+        const handleLogin = async () => {
+          if (loading) return; // Prevent login attempts while loading
+          setLoading(true); // Show loading during login process
+          try {
+            await auth.signInWithPopup(googleProvider);
+            // onAuthStateChanged will handle setting user and loading data
+          } catch (error) {
+            console.error("Google Sign-In Error:", error);
+            alert("Failed to sign in with Google: " + error.message);
+            setLoading(false); // Stop loading if login fails
+          }
+        };
+
+        const handleLogout = async () => {
+          if (loading) return; // Prevent logout while loading
+          setLoading(true); // Show loading during logout process
+          try {
+            await auth.signOut();
+            // onAuthStateChanged handles clearing user/data & setting loading to false
+          } catch (error) {
+            console.error("Sign Out Error:", error);
+            alert("Failed to sign out: " + error.message);
+            setLoading(false); // Stop loading if logout fails
+          }
+        };
+
+        // --- State Update Helper --- (Now less critical as saving is handled by useEffect)
         const updateNovels = (updateFn) => {
           setNovels((prevNovels) => {
+            // Ensure prevNovels is an array before applying the update
             const currentNovels = Array.isArray(prevNovels) ? prevNovels : [];
-            return updateFn(currentNovels);
+            // Apply the update function provided by the caller
+            const updatedNovels = updateFn(currentNovels);
+            // Validate the result before setting state (optional but good practice)
+            return validateAndCleanNovels(updatedNovels);
           });
         };
 
-        // --- Novel Actions ---
+        // --- Novel Actions --- (Largely unchanged logic, but rely on `updateNovels`)
         const handleCreateNovel = (title) => {
+          if (!user) return; // Should be handled by disabling button, but double-check
           const newNovel = {
             id: generateId(),
             title: title.trim() || "Untitled Novel",
-            template: null,
+            template: null, // Use null instead of undefined
             chapters: [],
           };
           updateNovels((prev) => [...prev, newNovel]);
@@ -1811,10 +2237,12 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
           setCurrentView("editor");
         };
         const handleOpenNovel = (id) => {
+          if (!user) return;
           setCurrentNovelId(id);
           setCurrentView("editor");
         };
         const handleDeleteNovel = (id) => {
+          if (!user) return;
           const novelToDelete = novels.find((n) => n.id === id);
           if (!novelToDelete) return;
           if (
@@ -1829,6 +2257,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
               setCurrentView("list");
               setCurrentNovelId(null);
             }
+            // Clean up summary state for the deleted novel's chapters
             setSummaryCollapseStates((prevStates) => {
               const newStates = { ...prevStates };
               if (Array.isArray(novelToDelete.chapters)) {
@@ -1839,6 +2268,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
           }
         };
         const handleUpdateNovel = (id, updates) => {
+          if (!user) return;
           updateNovels((prev) =>
             prev.map((novel) =>
               novel.id === id ? { ...novel, ...updates } : novel
@@ -1850,11 +2280,12 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
           setCurrentNovelId(null);
         };
 
-        // --- Chapter Actions ---
+        // --- Chapter Actions --- (Unchanged logic, use `updateNovels`)
         const handleAddChapter = (novelId) => {
+          if (!user) return;
           const newChapter = {
             id: generateId(),
-            title: "",
+            title: "", // Will be set below
             sceneBeats: [],
             summary: "",
           };
@@ -1870,11 +2301,18 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
               return novel;
             })
           );
+          // Optionally expand the new chapter's summary by default
+          setSummaryCollapseStates((prev) => ({
+            ...prev,
+            [newChapter.id]: false,
+          }));
         };
         const handleDeleteChapter = (novelId, chapterId) => {
+          if (!user) return;
           const novel = novels.find((n) => n.id === novelId);
-          const chapter = findChapeter(novel, chapterId);
+          const chapter = novel ? findChapeter(novel, chapterId) : null; // Use corrected findChapEter
           if (!novel || !chapter) return;
+
           if (
             confirm(
               `Are you sure you want to delete "${
@@ -1898,6 +2336,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                 return n;
               })
             );
+            // Clean up summary state
             setSummaryCollapseStates((prevStates) => {
               const newStates = { ...prevStates };
               delete newStates[chapterId];
@@ -1906,6 +2345,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
           }
         };
         const handleUpdateChapterTitle = (novelId, chapterId, newTitle) => {
+          if (!user) return;
           updateNovels((prev) =>
             prev.map((n) => {
               if (n.id === novelId) {
@@ -1916,7 +2356,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                   ...n,
                   chapters: currentChapters.map((ch) =>
                     ch.id === chapterId
-                      ? { ...ch, title: newTitle.trim() || "Untitled Chapter" }
+                      ? { ...ch, title: newTitle.trim() || "Untitled Chapter" } // Ensure trim
                       : ch
                   ),
                 };
@@ -1926,30 +2366,37 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
           );
         };
         const handleMoveChapter = (novelId, chapterId, direction) => {
+          if (!user) return;
           updateNovels((prev) =>
             prev.map((n) => {
               if (n.id === novelId) {
                 const currentChapters = Array.isArray(n.chapters)
                   ? n.chapters
                   : [];
-                const chapters = [...currentChapters];
+                const chapters = [...currentChapters]; // Create mutable copy
                 const index = chapters.findIndex((ch) => ch.id === chapterId);
-                if (index === -1) return n;
+                if (index === -1) return n; // Chapter not found
+
                 const newIndex = index + direction;
-                if (newIndex < 0 || newIndex >= chapters.length) return n;
+                // Check bounds
+                if (newIndex < 0 || newIndex >= chapters.length) return n; // Invalid move
+
+                // Swap elements
                 [chapters[index], chapters[newIndex]] = [
                   chapters[newIndex],
                   chapters[index],
                 ];
-                return { ...n, chapters };
+
+                return { ...n, chapters }; // Return novel with updated chapters array
               }
-              return n;
+              return n; // Return other novels unchanged
             })
           );
         };
 
-        // --- Scene Beat Actions ---
+        // --- Scene Beat Actions --- (Unchanged logic, use `updateNovels`)
         const handleAddBeat = (novelId, chapterId, text) => {
+          if (!user) return;
           const newBeat = {
             id: generateId(),
             text: text.trim(),
@@ -1978,26 +2425,26 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
             })
           );
         };
-
-        // Trigger Edit Beat Modal
         const handleEditBeat = (novelId, chapterId, beatId) => {
+          if (!user) return;
           const novel = novels.find((n) => n.id === novelId);
-          const chapter = findChapeter(novel, chapterId);
-          const beat = chapter.sceneBeats.find((b) => b.id === beatId);
+          const chapter = novel ? findChapeter(novel, chapterId) : null;
+          const beat = chapter
+            ? chapter.sceneBeats.find((b) => b.id === beatId)
+            : null;
           if (!beat) return;
           setModalContent({
             type: "editBeat",
             data: { novelId, chapterId, beatId, text: beat.text || "" },
           });
         };
-
-        // Save Edited Beat Text (called from EditBeatModal)
         const handleSaveBeatEdit = (novelId, chapterId, beatId, newText) => {
-          handleUpdateBeatText(novelId, chapterId, beatId, newText);
+          if (!user) return;
+          handleUpdateBeatText(novelId, chapterId, beatId, newText); // Use the specific update function
           handleCloseModal();
         };
-
         const handleDeleteBeat = (novelId, chapterId, beatId) => {
+          if (!user) return;
           if (confirm("Are you sure you want to delete this scene beat?")) {
             updateNovels((prev) =>
               prev.map((n) => {
@@ -2028,9 +2475,9 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
             );
           }
         };
-
-        // Update Beat Instruction Text (used by save edit modal)
         const handleUpdateBeatText = (novelId, chapterId, beatId, newText) => {
+          // This function is specifically for updating the instruction text from the modal
+          if (!user) return;
           updateNovels((prev) =>
             prev.map((n) => {
               if (n.id === novelId) {
@@ -2059,14 +2506,14 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
             })
           );
         };
-
-        // Update Generated Text (used by clear button & save edit modal)
         const handleUpdateGeneratedText = (
           novelId,
           chapterId,
           beatId,
           genText
         ) => {
+          // This function is specifically for updating the generated text from its edit modal
+          if (!user) return;
           updateNovels((prev) =>
             prev.map((n) => {
               if (n.id === novelId) {
@@ -2095,8 +2542,8 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
             })
           );
         };
-
         const handleMoveBeat = (novelId, chapterId, beatId, direction) => {
+          if (!user) return;
           updateNovels((prev) =>
             prev.map((n) => {
               if (n.id === novelId) {
@@ -2110,11 +2557,15 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                       const currentBeats = Array.isArray(ch.sceneBeats)
                         ? ch.sceneBeats
                         : [];
-                      const beats = [...currentBeats];
+                      const beats = [...currentBeats]; // Mutable copy
                       const index = beats.findIndex((b) => b.id === beatId);
-                      if (index === -1) return ch;
+                      if (index === -1) return ch; // Beat not found
+
                       const newIndex = index + direction;
-                      if (newIndex < 0 || newIndex >= beats.length) return ch;
+                      // Check bounds
+                      if (newIndex < 0 || newIndex >= beats.length) return ch; // Invalid move
+
+                      // Swap
                       [beats[index], beats[newIndex]] = [
                         beats[newIndex],
                         beats[index],
@@ -2136,6 +2587,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
           chapterId,
           summaryText
         ) => {
+          if (!user) return;
           updateNovels((prev) =>
             prev.map((n) => {
               if (n.id === novelId) {
@@ -2144,8 +2596,9 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                   : [];
                 return {
                   ...n,
-                  chapters: currentChapters.map((ch) =>
-                    ch.id === chapterId ? { ...ch, summary: summaryText } : ch
+                  chapters: currentChapters.map(
+                    (ch) =>
+                      ch.id === chapterId ? { ...ch, summary: summaryText } : ch // Update summary
                   ),
                 };
               }
@@ -2154,17 +2607,17 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
           );
         };
         const handleToggleSummaryCollapse = (chapterId) => {
+          // This only affects UI state, doesn't need login check, and saving is handled by the main useEffect
           setSummaryCollapseStates((prevStates) => {
             const currentState =
-              typeof prevStates[chapterId] !== "undefined" &&
-              prevStates[chapterId] !== null
+              typeof prevStates[chapterId] !== "undefined"
                 ? prevStates[chapterId]
                 : true; // Default collapsed
             return { ...prevStates, [chapterId]: !currentState };
           });
         };
 
-        // --- Prompt Generation (Existing - unchanged) ---
+        // --- Prompt Generation --- (Unchanged logic)
         const generatePromptText = (novelId, chapterId, beatId) => {
           const novel = novels.find((n) => n.id === novelId);
           if (!novel || !Array.isArray(novel.chapters))
@@ -2173,7 +2626,12 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
             (ch) => ch.id === chapterId
           );
           const chapter = novel.chapters[chapterIndex];
-          if (!chapter || !Array.isArray(chapter.sceneBeats))
+          if (
+            chapterIndex === -1 ||
+            !chapter ||
+            !Array.isArray(chapter.sceneBeats)
+          )
+            // Check chapterIndex too
             return { error: "Chapter or scene beats not found/invalid" };
           const beatIndex = chapter.sceneBeats.findIndex(
             (b) => b.id === beatId
@@ -2210,8 +2668,9 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
               storySoFar.length + chapterContext.length <
               maxContextLength * 1.2
             ) {
+              // Allow slightly over before check
               storySoFar += chapterContext;
-            } else break; // Stop adding chapters if context gets too long
+            } else break; // Stop adding chapters
           }
 
           // Previous beats in current chapter
@@ -2224,7 +2683,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                 maxContextLength * 1.2
               ) {
                 storySoFar += beatText;
-              } else break; // Stop adding beats if context gets too long
+              } else break; // Stop adding beats
             }
           }
 
@@ -2232,7 +2691,8 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
           if (storySoFar.length > maxContextLength) {
             const excess = storySoFar.length - maxContextLength;
             storySoFar =
-              `... (trimmed ${excess} characters)\n` + storySoFar.slice(excess);
+              `... (trimmed ${excess} characters from the beginning)\n` +
+              storySoFar.slice(excess);
           }
           storySoFar = storySoFar.trim();
 
@@ -2246,8 +2706,12 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
           return { prompt: prompt.trim() };
         };
 
-        // --- Modal Handling ---
+        // --- Modal Handling --- (Unchanged logic)
         const handleShowPrompt = (novelId, chapterId, beatId) => {
+          if (!user) {
+            alert("Please log in first.");
+            return;
+          }
           const { prompt, error } = generatePromptText(
             novelId,
             chapterId,
@@ -2260,6 +2724,10 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
           setModalContent({ type: "prompt", data: { text: prompt } });
         };
         const handleShowTemplateEditor = (novelId) => {
+          if (!user) {
+            alert("Please log in first.");
+            return;
+          }
           const novel = novels.find((n) => n.id === novelId);
           if (!novel) return;
           setModalContent({
@@ -2271,15 +2739,22 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
           });
         };
         const handleShowExportModal = (exportText) => {
+          if (!user) {
+            alert("Please log in first.");
+            return;
+          }
           setModalContent({ type: "export", data: { text: exportText } });
         };
-
         const handleShowEditGeneratedTextModal = (
           novelId,
           chapterId,
           beatId,
           generatedText
         ) => {
+          if (!user) {
+            alert("Please log in first.");
+            return;
+          }
           setModalContent({
             type: "editGeneratedText",
             data: {
@@ -2290,46 +2765,50 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
             },
           });
         };
-
         const handleCloseModal = () => {
           setModalContent(null);
         };
-
         const handleSaveTemplate = (novelId, newTemplate) => {
+          if (!user) return;
           const templateToSave =
             newTemplate.trim() !== DEFAULT_PROMPT_TEMPLATE.trim()
-              ? newTemplate
-              : null;
+              ? newTemplate.trim() // Save trimmed version
+              : null; // Store null if it's same as default
           handleUpdateNovel(novelId, { template: templateToSave });
           handleCloseModal();
         };
-
-        // Save Edited Generated Text
         const handleSaveGeneratedText = (
           novelId,
           chapterId,
           beatId,
           newText
         ) => {
-          handleUpdateGeneratedText(novelId, chapterId, beatId, newText);
+          if (!user) return;
+          handleUpdateGeneratedText(novelId, chapterId, beatId, newText); // Use specific update function
           handleCloseModal();
         };
 
-        // --- Copy Actions ---
+        // --- Copy Actions --- (Unchanged logic)
         const handleCopyPromptFromModal = (text) => {
           return copyToClipboard(text);
         };
         const handleCopySummaryPrompt = (novelId, chapterId) => {
+          if (!user) {
+            alert("Please log in first.");
+            return Promise.reject(new Error("Not logged in"));
+          }
           const novel = novels.find((n) => n.id === novelId);
-          const chapter = findChapeter(novel, chapterId);
+          const chapter = novel ? findChapeter(novel, chapterId) : null;
           if (!chapter || !Array.isArray(chapter.sceneBeats))
             return Promise.reject(
               new Error("Chapter or scene beats not found/invalid")
             );
+
           const chapterText = chapter.sceneBeats
             .map((beat) => beat.generatedText || "")
             .filter(Boolean)
             .join("\n\n");
+
           if (!chapterText) {
             alert("No generated content in this chapter to summarize.");
             return Promise.reject(new Error("No content to summarize"));
@@ -2338,13 +2817,20 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
           return copyToClipboard(prompt);
         };
 
-        // --- Import / Export ---
+        // --- Import / Export --- (Unchanged logic, checks added to handlers)
         const handleExportNovel = (novelId) => {
           return new Promise((resolve, reject) => {
+            if (!user) return reject(new Error("Please log in to export."));
             const novel = novels.find((n) => n.id === novelId);
             if (!novel) return reject(new Error("Novel not found"));
+
             let markdown = `# ${novel.title || "Untitled Novel"}\n\n`;
-            markdown += `### Template\n\n${getEffectiveTemplate(novel)}\n\n`;
+            // Include template only if it's custom (not null and not default)
+            const effectiveTemplate = getEffectiveTemplate(novel);
+            if (effectiveTemplate !== DEFAULT_PROMPT_TEMPLATE) {
+              markdown += `### Template\n\n\`\`\`\n${effectiveTemplate}\n\`\`\`\n\n`;
+            }
+
             const currentChapters = Array.isArray(novel.chapters)
               ? novel.chapters
               : [];
@@ -2361,10 +2847,10 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                 : [];
               currentBeats.forEach((beat, beatIndex) => {
                 markdown += `#### Beat ${beatIndex + 1}\n\n`;
-                markdown += `**Scene Description:**\n${beat.text || ""}\n\n`;
-                markdown += `**Generated Content:**\n${
+                markdown += `**Scene Description:**\n\n${beat.text || ""}\n\n`; // Added newline for clarity
+                markdown += `**Generated Content:**\n\n${
                   beat.generatedText || ""
-                }\n\n`;
+                }\n\n`; // Added newline
               });
             });
             handleShowExportModal(markdown.trim());
@@ -2372,24 +2858,29 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
           });
         };
         const handleImportNovel = (text) => {
+          if (!user) {
+            alert("Please log in to import.");
+            return;
+          }
           try {
             const novel = {
               id: generateId(),
               title: "Imported Novel",
-              template: null,
+              template: null, // Default to null initially
               chapters: [],
             };
             const lines = text.split("\n");
             let currentChapter = null;
             let currentBeat = null;
-            let readingMode = null; // null | 'summary' | 'description' | 'generated' | 'template'
+            let readingMode = null; // null | 'template' | 'summary' | 'description' | 'generated'
             let accumulatingText = "";
 
             const finishAccumulatingText = () => {
               const content = accumulatingText.trim();
               if (readingMode === "template") {
+                // Store template only if it's not the default
                 novel.template =
-                  content && content !== DEFAULT_PROMPT_TEMPLATE
+                  content && content !== DEFAULT_PROMPT_TEMPLATE.trim()
                     ? content
                     : null;
               } else if (readingMode === "summary" && currentChapter) {
@@ -2404,6 +2895,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
 
             lines.forEach((line) => {
               const trimmedLine = line.trim();
+
               if (trimmedLine.startsWith("# ")) {
                 finishAccumulatingText();
                 novel.title =
@@ -2428,7 +2920,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                 readingMode = "summary";
               } else if (trimmedLine === "### Scene Beats" && currentChapter) {
                 finishAccumulatingText();
-                readingMode = null;
+                readingMode = null; // Section header, reset mode
               } else if (
                 trimmedLine.startsWith("#### Beat") &&
                 currentChapter
@@ -2449,55 +2941,47 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
               ) {
                 finishAccumulatingText();
                 readingMode = "generated";
+              } else if (readingMode === "template" && trimmedLine === "```") {
+                // End of template block, handled by finishAccumulatingText called by next header
+              } else if (readingMode) {
+                // Accumulate lines if in a reading mode
+                accumulatingText += line + "\n";
               } else {
-                if (
-                  readingMode ||
-                  line.startsWith(" ") ||
-                  line.startsWith("\t") ||
-                  (accumulatingText && line)
-                ) {
-                  accumulatingText += line + "\n";
-                } else if (trimmedLine) {
+                // Ignore lines outside known sections unless it looks like part of a previous block
+                if (accumulatingText && line) {
                   accumulatingText += line + "\n";
                 }
               }
             });
-            finishAccumulatingText();
+            finishAccumulatingText(); // Process any remaining text
 
-            if (
-              !novel.title ||
-              ((!Array.isArray(novel.chapters) ||
-                novel.chapters.length === 0) &&
-                !novel.template)
-            ) {
-              console.warn("Imported text might be incomplete or invalid.");
+            if (!novel.title || novel.chapters.length === 0) {
+              console.warn(
+                "Imported text might be incomplete or invalid format."
+              );
             }
-            if (Array.isArray(novel.chapters)) {
-              novel.chapters.forEach((ch) => {
-                ch.sceneBeats = Array.isArray(ch.sceneBeats)
-                  ? ch.sceneBeats
-                  : [];
-              });
-            } else {
-              novel.chapters = [];
-            }
-            updateNovels((prev) => [...prev, novel]);
+            // Validate imported structure
+            const validatedNovel = validateAndCleanNovels([novel])[0]; // Validate the single imported novel
+
+            updateNovels((prev) => [...prev, validatedNovel]); // Add the validated novel
+            alert(`Novel "${validatedNovel.title}" imported successfully!`);
           } catch (e) {
             console.error("Import error:", e);
             alert(
-              "Error importing novel. Please check the format.\n\n" + e.message
+              "Error importing novel. Please check the format and console for details.\n\n" +
+                e.message
             );
           }
         };
 
-        // --- Generate clean novel text (content only, no instructions or summaries) ---
+        // --- Generate clean novel text --- (Unchanged logic)
         const generateNovelText = (novelId) => {
           return new Promise((resolve, reject) => {
+            if (!user) return reject(new Error("Please log in to view text."));
             const novel = novels.find((n) => n.id === novelId);
             if (!novel) return reject(new Error("Novel not found"));
 
             let novelText = `${novel.title || "Untitled Novel"}\n\n`;
-
             const currentChapters = Array.isArray(novel.chapters)
               ? novel.chapters
               : [];
@@ -2506,25 +2990,25 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
               novelText += `${
                 chapter.title || `Chapter ${chapterIndex + 1}`
               }\n\n`;
-
               const currentBeats = Array.isArray(chapter.sceneBeats)
                 ? chapter.sceneBeats
                 : [];
-
               const chapterContent = currentBeats
                 .map((beat) => beat.generatedText || "")
-                .filter(Boolean)
-                .join("\n\n");
+                .filter(Boolean) // Remove empty strings
+                .join("\n\n"); // Join with double newline
 
-              novelText += `${chapterContent}\n\n`;
+              novelText += `${chapterContent.trim()}\n\n`; // Trim content before adding final newlines
             });
 
-            resolve(novelText.trim());
+            resolve(novelText.trim()); // Trim final result
           });
         };
-
-        // --- Handle View Novel Text (trigger for the new view text modal) ---
         const handleViewNovelText = (novelId) => {
+          if (!user) {
+            alert("Please log in first.");
+            return;
+          }
           generateNovelText(novelId)
             .then((novelText) => {
               setModalContent({ type: "novelText", data: { text: novelText } });
@@ -2537,26 +3021,64 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
 
         // --- Current Novel Data ---
         const currentNovel = useMemo(() => {
-          if (!Array.isArray(novels)) return null;
+          if (!user || !Array.isArray(novels)) return null; // Need user and valid novels array
           return novels.find((n) => n.id === currentNovelId) || null;
-        }, [novels, currentNovelId]);
+        }, [novels, currentNovelId, user]); // Depend on user as well
 
         // --- Render Logic ---
         return (
           <div className="container">
+            <AuthUI
+              user={user}
+              onLogin={handleLogin}
+              onLogout={handleLogout}
+              loading={loading}
+            />
+
             <h1>NovelTokenToken</h1>
 
-            {currentView === "list" && (
+            {loading && <div className="loading-indicator">Loading...</div>}
+
+            {!loading && !user && (
+              <div className="login-prompt">
+                <p>
+                  Please log in with your Google account to manage your novels.
+                </p>
+                <button onClick={handleLogin}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    width="16"
+                    height="16"
+                    style={{ verticalAlign: "middle", marginRight: "5px" }}
+                  >
+                    <path d="M9.99 1.75a8.25 8.25 0 00-5.756 14.214.75.75 0 01-.993-1.126 6.75 6.75 0 1111.498 0 .75.75 0 11-.993 1.126A8.25 8.25 0 009.99 1.75z" />
+                    <path d="M12 9.75a.75.75 0 01.75.75v3a.75.75 0 01-1.5 0v-3a.75.75 0 01.75-.75z" />
+                    <path
+                      fillRule="evenodd"
+                      d="M9.99 3.25a.75.75 0 01.75.75v6a.75.75 0 01-1.5 0V4a.75.75 0 01.75-.75z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Login with Google
+                </button>
+              </div>
+            )}
+
+            {!loading && user && currentView === "list" && (
               <NovelListView
                 novels={novels}
                 onCreateNovel={handleCreateNovel}
                 onOpenNovel={handleOpenNovel}
                 onDeleteNovel={handleDeleteNovel}
                 onImportNovel={handleImportNovel}
+                user={user}
+                loading={loading}
               />
             )}
 
-            {currentView === "editor" && currentNovel && (
+            {!loading && user && currentView === "editor" && currentNovel && (
               <NovelEditorView
                 novel={currentNovel}
                 onBack={handleBackToList}
@@ -2569,34 +3091,40 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
                 onAddBeat={handleAddBeat}
                 onDeleteBeat={handleDeleteBeat}
                 onMoveBeat={handleMoveBeat}
-                onUpdateBeatText={handleUpdateBeatText}
-                onUpdateGeneratedText={handleUpdateGeneratedText}
+                onUpdateBeatText={handleUpdateBeatText} // Pass down for edit modal
+                onUpdateGeneratedText={handleUpdateGeneratedText} // Pass down for edit modal
                 onUpdateChapterSummary={handleUpdateChapterSummary}
                 onExportNovel={handleExportNovel}
                 onShowPrompt={handleShowPrompt}
                 onShowTemplateEditor={handleShowTemplateEditor}
-                summaryCollapseStates={summaryCollapseStates}
+                summaryCollapseStates={summaryCollapseStates} // Pass down
                 onToggleSummaryCollapse={handleToggleSummaryCollapse}
                 onCopySummaryPrompt={handleCopySummaryPrompt}
-                onEditBeat={handleEditBeat}
-                onShowEditGeneratedTextModal={handleShowEditGeneratedTextModal}
-                handleViewNovelText={handleViewNovelText}
+                onEditBeat={handleEditBeat} // Pass down
+                onShowEditGeneratedTextModal={handleShowEditGeneratedTextModal} // Pass down
+                handleViewNovelText={handleViewNovelText} // Pass down
               />
             )}
+            {!loading && user && currentView === "editor" && !currentNovel && (
+              // Handle case where editor is shown but novel ID is invalid
+              <div className="view">
+                <p>Novel not found or invalid ID.</p>
+                <button onClick={handleBackToList}>Back to List</button>
+              </div>
+            )}
 
+            {/* --- Modals --- (Render conditionally based on modalContent) */}
             {modalContent && modalContent.type === "prompt" && (
               <PromptModal
-                promptText={modalContent.data && modalContent.data.text}
+                promptText={modalContent.data.text}
                 onClose={handleCloseModal}
                 onCopy={handleCopyPromptFromModal}
               />
             )}
             {modalContent && modalContent.type === "template" && (
               <TemplateEditorModal
-                novelId={modalContent.data && modalContent.data.novelId}
-                currentTemplate={
-                  modalContent.data && modalContent.data.currentTemplate
-                }
+                novelId={modalContent.data.novelId}
+                currentTemplate={modalContent.data.currentTemplate}
                 onClose={handleCloseModal}
                 onSave={handleSaveTemplate}
                 defaultTemplate={DEFAULT_PROMPT_TEMPLATE}
@@ -2604,14 +3132,14 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
             )}
             {modalContent && modalContent.type === "export" && (
               <ExportModal
-                exportText={modalContent.data && modalContent.data.text}
+                exportText={modalContent.data.text}
                 onClose={handleCloseModal}
                 onCopy={handleCopyPromptFromModal}
               />
             )}
             {modalContent && modalContent.type === "editBeat" && (
               <EditBeatModal
-                beatText={modalContent.data && modalContent.data.text}
+                beatText={modalContent.data.text}
                 onClose={handleCloseModal}
                 onSave={(editedText) =>
                   handleSaveBeatEdit(
@@ -2625,9 +3153,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
             )}
             {modalContent && modalContent.type === "editGeneratedText" && (
               <EditGeneratedTextModal
-                generatedText={
-                  modalContent.data && modalContent.data.generatedText
-                }
+                generatedText={modalContent.data.generatedText}
                 onClose={handleCloseModal}
                 onSave={(editedText) =>
                   handleSaveGeneratedText(
@@ -2641,7 +3167,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
             )}
             {modalContent && modalContent.type === "novelText" && (
               <NovelTextModal
-                novelText={modalContent.data && modalContent.data.text}
+                novelText={modalContent.data.text}
                 onClose={handleCloseModal}
                 onCopy={handleCopyPromptFromModal}
               />
@@ -2650,6 +3176,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
         );
       }
 
+      // --- Modal Components (Existing, Unchanged) ---
       function PromptModal({ promptText, onClose, onCopy }) {
         const [copyFeedback, setCopyFeedback] = useState("");
         const handleCopy = () => {
@@ -2697,8 +3224,10 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
       }) {
         const [templateText, setTemplateText] = useState(currentTemplate || "");
         useEffect(() => {
+          // Update local state if the prop changes (e.g., opening modal for different novel)
           setTemplateText(currentTemplate || "");
         }, [currentTemplate]);
+
         const handleSave = () => {
           onSave(novelId, templateText);
         };
@@ -2789,8 +3318,8 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
 
       function EditBeatModal({ beatText, onClose, onSave }) {
         const [editedText, setEditedText] = useState(beatText || "");
-        const handleSave = () => {
-          onSave(editedText);
+        const handleSaveClick = () => {
+          onSave(editedText); // Call the passed onSave function
         };
         return (
           <Modal
@@ -2798,7 +3327,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
             onClose={onClose}
             footer={
               <React.Fragment>
-                <button onClick={handleSave}>Save Changes</button>
+                <button onClick={handleSaveClick}>Save Changes</button>
                 <button className="secondary-btn" onClick={onClose}>
                   Cancel
                 </button>
@@ -2818,8 +3347,8 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
 
       function EditGeneratedTextModal({ generatedText, onClose, onSave }) {
         const [editedText, setEditedText] = useState(generatedText || "");
-        const handleSave = () => {
-          onSave(editedText);
+        const handleSaveClick = () => {
+          onSave(editedText); // Call the passed onSave function
         };
 
         return (
@@ -2828,7 +3357,7 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
             onClose={onClose}
             footer={
               <React.Fragment>
-                <button onClick={handleSave}>Save Changes</button>
+                <button onClick={handleSaveClick}>Save Changes</button>
                 <button className="secondary-btn" onClick={onClose}>
                   Cancel
                 </button>
@@ -2876,18 +3405,9 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
               </React.Fragment>
             }
           >
-            <div style={{ maxHeight: "70vh", overflow: "auto" }}>
-              <div
-                style={{
-                  whiteSpace: "pre-wrap",
-                  fontFamily: "serif",
-                  lineHeight: "1.6",
-                  padding: "15px",
-                  backgroundColor: "#fcfcfc",
-                  border: "1px solid #eee",
-                  borderRadius: "4px",
-                }}
-              >
+            {/* Make modal body scrollable, not just the inner div */}
+            <div className="novel-text-modal-body">
+              <div className="novel-text-display">
                 {novelText || "No content available"}
               </div>
             </div>
@@ -2895,8 +3415,14 @@ STOP EARLY if the continuation contains what was required in the instructions. Y
         );
       }
 
-      const root = ReactDOM.createRoot(document.getElementById("root"));
-      root.render(<App />);
+      // --- Render the App ---
+      const rootElement = document.getElementById("root");
+      if (rootElement) {
+        const root = ReactDOM.createRoot(rootElement);
+        root.render(<App />);
+      } else {
+        console.error("Root element (#root) not found in the DOM.");
+      }
     </script>
   </body>
 </html>
